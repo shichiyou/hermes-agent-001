@@ -1,0 +1,33 @@
+{
+  "name": "hermes-agent-template",
+  "private": true,
+  "packageManager": "npm@11.12.1",
+  "license": "MIT",
+  "author": "Tanaka Yasunobu",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "check": "turbo run check",
+    "check:deps": "./.devcontainer/scripts/check-package-updates.sh",
+    "check:python-deps": "./.devcontainer/scripts/check-python-package-updates.sh",
+    "format": "biome format --write .",
+    "test:shells": "bats tests/"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.12",
+    "bats": "^1.13.0",
+    "bats-assert": "^2.2.4",
+    "bats-support": "^0.3.0",
+    "tsx": "^4.21.0",
+    "turbo": "^2.9.6",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.9",
+    "vitest": "^4.1.5"
+  }
+}

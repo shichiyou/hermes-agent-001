@@ -1,0 +1,35 @@
+# Block shell commands that read from .secrets/
+# Note: prefix_rule matches shell command arguments as a literal prefix list.
+# This catches common read commands (cat, head, tail, less, more) when the
+# path starts with .secrets/. The agent's internal file-reading tools that do
+# not go through shell are not subject to these rules.
+
+prefix_rule(
+    pattern = ["cat", ".secrets"],
+    decision = "forbidden",
+    justification = "The .secrets/ directory contains sensitive credentials. Do not read its contents.",
+)
+
+prefix_rule(
+    pattern = ["head", ".secrets"],
+    decision = "forbidden",
+    justification = "The .secrets/ directory contains sensitive credentials. Do not read its contents.",
+)
+
+prefix_rule(
+    pattern = ["tail", ".secrets"],
+    decision = "forbidden",
+    justification = "The .secrets/ directory contains sensitive credentials. Do not read its contents.",
+)
+
+prefix_rule(
+    pattern = ["less", ".secrets"],
+    decision = "forbidden",
+    justification = "The .secrets/ directory contains sensitive credentials. Do not read its contents.",
+)
+
+prefix_rule(
+    pattern = ["more", ".secrets"],
+    decision = "forbidden",
+    justification = "The .secrets/ directory contains sensitive credentials. Do not read its contents.",
+)

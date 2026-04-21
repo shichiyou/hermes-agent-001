@@ -1,0 +1,31 @@
+[project]
+name = "hermes-agent-template"
+version = "0.0.0"
+description = "hermes agent (https://github.com/NousResearch/hermes-agent) lab"
+license = { text = "MIT" }
+authors = [{ name = "Tanaka Yasunobu" }]
+requires-python = ">=3.12"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3,<10",
+]
+
+[tool.uv.workspace]
+members = ["packages/*", "apps/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["packages", "apps"]
+python_files = ["test_*.py", "*_test.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.ruff.format]
+quote-style = "double"

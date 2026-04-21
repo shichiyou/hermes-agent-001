@@ -1,0 +1,2 @@
+# Ollama models required by Hermes Agent
+# Install with: ollama pull <model>

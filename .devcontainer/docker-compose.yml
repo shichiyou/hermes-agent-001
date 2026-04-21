@@ -1,0 +1,110 @@
+# ==========================================================================
+# docker-compose.yml — Dev Container service definitions
+#
+# Security model for Docker socket access
+# ─────────────────────────────────────────
+# The devcontainer connects to docker-proxy (TCP), NOT to the real
+# Docker socket.  docker-proxy enforces read-only access to the daemon.
+#
+# To change which operations are permitted:
+#   1. Edit the docker-proxy environment variables below ON THE HOST
+#      (or inside the container, then switch to a host terminal).
+#   2. Restart the proxy FROM THE HOST:
+#        docker compose -f .devcontainer/docker-compose.yml restart docker-proxy
+#
+# An AI agent inside the devcontainer CAN edit this file, but CANNOT
+# apply the change: DOCKER_HOST points to the proxy, and the proxy
+# blocks POST requests (start/stop/restart containers).  Only a human
+# with access to the real Docker socket can reload the proxy config.
+# ==========================================================================
+
+services:
+
+  # -----------------------------------------------------------------------
+  # docker-proxy — Read-only Docker API gateway
+  #
+  # Allowed operations (value "1"):
+  #   PING, VERSION, INFO  — metadata queries
+  #   CONTAINERS           — docker ps / docker inspect / docker logs
+  #   IMAGES               — docker images
+  #
+  # Blocked operations (value "0"):
+  #   POST    — create / start / stop / restart / kill / exec / …
+  #   DELETE  — rm / rmi / volume rm / network rm / …
+  #   All other resource endpoints (networks, volumes, secrets, …)
+  #
+  # To enable additional operations, set the env var to "1" and
+  # restart the proxy from the HOST as described above.
+  # -----------------------------------------------------------------------
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:v0.4.2
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:2375/_ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      # ── Read-only metadata (always allowed) ──────────────────────────
+      PING: "1"
+      VERSION: "1"
+      INFO: "1"
+      # ── Container and image visibility ───────────────────────────────
+      CONTAINERS: "1"   # docker ps, docker inspect, docker logs
+      IMAGES: "1"       # docker images
+      # ── HTTP method restrictions ──────────────────────────────────────
+      # POST:0   blocks create/start/stop/restart/kill/exec/commit/…
+      # DELETE:0 blocks rm/rmi/volume rm/network rm/…
+      POST: "0"
+      DELETE: "0"
+      # ── Sensitive resource endpoints (all blocked) ────────────────────
+      AUTH: "0"
+      BUILD: "0"
+      COMMIT: "0"
+      CONFIGS: "0"
+      DISTRIBUTION: "0"
+      EXEC: "0"
+      NETWORKS: "0"
+      NODES: "0"
+      PLUGINS: "0"
+      SECRETS: "0"
+      SERVICES: "0"
+      SESSION: "0"
+      SWARM: "0"
+      SYSTEM: "0"
+      TASKS: "0"
+      VOLUMES: "0"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /run
+      - /tmp
+
+  # -----------------------------------------------------------------------
+  # devcontainer — Main development environment
+  # VS Code attaches to this service.  The workspace bind-mount is added
+  # automatically by the devcontainer CLI (workspaceFolder in devcontainer.json).
+  # -----------------------------------------------------------------------
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      # Connect Docker CLI to the proxy, never to the real Docker socket.
+      DOCKER_HOST: tcp://docker-proxy:2375
+    depends_on:
+      - docker-proxy
+    volumes:
+      - devcontainer-home:/home/vscode
+    # Keep the container alive for VS Code to attach.
+    command: sleep infinity
+
+volumes:
+  # Persistent home volume — scoped per repository.
+  # Name is taken from DEVCONTAINER_HOME_VOLUME, written to .devcontainer/.env
+  # by devcontainer.json's initializeCommand on every container start.
+  # external:true prevents `docker compose down -v` from wiping user data.
+  devcontainer-home:
+    external: true
+    name: ${DEVCONTAINER_HOME_VOLUME:-devcontainer-home}

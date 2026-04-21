@@ -1,0 +1,33 @@
+# API keys and OAuth tokens — MUST NEVER be committed to Git
+auth.json
+
+# Raw .env file — contains live secrets (bot tokens, API keys)
+# Only the placeholder-ized dot-env-template is safe to track in Git
+.env
+
+# Session history (large, low value for disaster recovery)
+sessions/
+
+# Hermes runtime (re-installable via 'hermes update')
+hermes-agent/
+bin/
+
+# Auto-generated state files (re-created on startup)
+gateway_state.json
+gateway.pid
+processes.json
+
+# Database files (re-created on startup)
+*.db
+*.db-shm
+*.db-wal
+
+# Lock files
+*.lock
+
+# Log files
+logs/
+
+# Hub-installed skills (re-installable via 'hermes skills install')
+# Custom skills are synced by backup-hermes-config.sh using
+# the .hub_install marker to exclude hub-sourced entries.

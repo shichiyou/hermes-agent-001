@@ -1,0 +1,5 @@
+# Default owners for everything
+*   @tanaka-yasunobu
+
+# Dev Container specific
+.devcontainer/    @tanaka-yasunobu

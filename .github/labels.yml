@@ -1,0 +1,37 @@
+# GitHub Actions Labels
+# These labels are managed via https://github.com/actions/labeler
+# Usage: https://github.com/mheap/github-action-required-labels
+---
+- name: bug
+  color: d73a4a
+  description: Something isn't working
+- name: enhancement
+  color: a155ee
+  description: New feature or request
+- name: documentation
+  color: 0075ca
+  description: Improvements to documentation
+- name: help wanted
+  color: 008672
+  description: Extra attention is needed
+- name: good first issue
+  color: 7057ff
+  description: Good for newcomers
+- name: area/devcontainer
+  color: eebc00
+  description: Related to Dev Container configuration or scripts
+- name: area/ci
+  color: 0366d6
+  description: Related to CI/CD or testing
+- name: area/docs
+  color: cwd4c15
+  description: Related to documentation
+- name: language/bash
+  color: 89ab8a
+  description: Shell or Bash related
+- name: language/typescript
+  color: 3178c6
+  description: TypeScript related
+- name: language/python
+  color: 3572A5
+  description: Python related

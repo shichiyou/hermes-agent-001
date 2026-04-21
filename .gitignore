@@ -1,0 +1,70 @@
+# =========================
+# Node.js / TypeScript
+# =========================
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.claude/settings.local.json
+.claude/handovers/
+.idea/
+*.swp
+*.swo
+*~
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Environment / Secrets
+# =========================
+.env
+.env.local
+.env.*.local
+.secrets/
+
+# =========================
+# Agent-generated artifacts (Discord/Cron tasks)
+# Research reports, audit reports, and other outputs
+# from agent tasks must NOT pollute this repository.
+# Use ~/workspace/ for all agent output files.
+# =========================
+*-research-report.md
+*-audit-report.md
+*-security-audit-report.md
+
+# =========================
+# Third-party repos (cloned separately)
+# External repos cloned for research go in ~/workspace/repos/
+# =========================
+aidlc-workflows/
+
+# =========================
+# Build / Coverage
+# =========================
+coverage/
+htmlcov/
+*.lcov

@@ -1,0 +1,65 @@
+name: Bug report
+description: Report a repository-specific bug or regression.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for reproducible problems in the Dev Container baseline, scripts, documentation, or CI.
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: What is failing?
+      placeholder: post-create.sh fails while installing optional AI CLIs
+    validations:
+      required: true
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Failure phase
+      options:
+        - on-create
+        - post-create
+        - post-start
+        - local command execution
+        - CI
+        - documentation
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Host environment
+      description: Host OS, container runtime, or other relevant environment details.
+      placeholder: Ubuntu 24.04, Docker Desktop 4.x
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest set of steps that reproduces the issue.
+      placeholder: |
+        1. Open the repository in VS Code
+        2. Reopen in container
+        3. Wait for post-create
+        4. Observe the error
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or output
+      description: Paste the key error messages, command output, or CI logs.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true

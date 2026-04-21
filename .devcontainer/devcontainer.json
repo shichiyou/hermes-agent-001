@@ -1,0 +1,66 @@
+{
+  "name": "hermes-agent-template",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "containerEnv": {
+    "LANG": "en_US.UTF-8",
+    "LANGUAGE": "en_US:en",
+    "LC_ALL": "en_US.UTF-8",
+    "TZ": "Etc/UTC",
+    "OLLAMA_CONTEXT_LENGTH": "262144",
+    "AI_LOG_RETENTION_DAYS": "30"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/azure-cli:1": {
+      "version": "2.85.0"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "2.89.0"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "24"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.14"
+    }
+  },
+  "initializeCommand": "docker volume create devcontainer-home-${localWorkspaceFolderBasename} 2>/dev/null || true && echo 'DEVCONTAINER_HOME_VOLUME=devcontainer-home-${localWorkspaceFolderBasename}' > .devcontainer/.env",
+  "onCreateCommand": "bash .devcontainer/on-create.sh",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "bash .devcontainer/post-start.sh",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "errorLens.enabled": true,
+        "errorLens.enabledDiagnosticLevels": [
+          "error",
+          "warning"
+        ],
+        "errorLens.messageTemplate": "$message",
+        "errorLens.messageBackgroundMode": "message",
+        "errorLens.fontSize": "90%",
+        "errorLens.fontWeight": "normal",
+        "errorLens.margin": "1.2ch",
+        "errorLens.excludeBySource": [
+          "cSpell",
+          "markdownlint"
+        ]
+      },
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "biomejs.biome",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.azurecli",
+        "redhat.vscode-yaml",
+        "EditorConfig.EditorConfig"
+      ]
+    }
+  },
+  "remoteUser": "vscode",
+  "forwardPorts": [9119]
+}
