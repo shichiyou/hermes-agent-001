@@ -540,6 +540,7 @@ show_list() {
     echo "    claude-code    - Claude Code"
     echo "    codex          - OpenAI Codex CLI"
     echo "    copilot        - GitHub Copilot CLI"
+    echo "    playwright     - Playwright npm package and Chromium browser binary"
     echo ""
     echo -e "Usage: ${YELLOW}update-tools.sh <tool> [<tool> ...]${NC}"
     echo -e "Update all: ${YELLOW}update-tools.sh --all${NC}"
@@ -596,6 +597,7 @@ update_tool() {
         claude-code)  update_claude_code ;;
         codex)        update_codex ;;
         copilot)      update_copilot ;;
+        playwright)   update_playwright ;;
         *)
             echo -e "${RED}Unknown tool: ${tool}${NC}"
             echo "  Run --list to see the supported tool names"
