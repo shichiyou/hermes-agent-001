@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # Hermes Agent Lab — 進捗ログ
 
 `AGENTS.md` の Mandatory Cycle（仮説→証拠→実行→観測検証）と Hard Gates（観測検証なしに完了を
@@ -21,6 +23,27 @@
 ---
 
 <!-- エントリはここから下に時系列で追記する -->
+
+## 2026-04-21: devcontainer baseline に ripgrep を追加
+
+### 実施
+
+- [.devcontainer/Dockerfile](../../.devcontainer/Dockerfile) のベース apt パッケージへ `ripgrep` を追加
+- [docs/hermes-agent/setup.md](setup.md) の前提条件に `ripgrep` (`rg`) を追記
+- `npm run test:shells` を実行
+
+### 観測
+
+- `npm run test:shells` は `63 tests, 0 failures, 2 skipped` を出力
+- テンプレート側コミット `e861a7581ff0543a75e2800064e4c54ad3da18d6` の差分は 3 ファイルで、現リポジトリへ対応可能だった
+- devcontainer リビルド後の観測: `command -v rg` → `/usr/bin/rg`
+- devcontainer リビルド後の観測: `rg --version` → `ripgrep 14.1.0`
+- devcontainer リビルド後の観測: `command -v hermes` → `/home/vscode/.local/bin/hermes`
+- devcontainer リビルド後の観測: `hermes doctor | grep -i 'ripgrep (rg)'` → `✓ ripgrep (rg) (faster file search)`
+
+### 未解決
+
+- 特になし
 
 ## 2026-04-17: ラボ初期セットアップ
 
@@ -49,6 +72,7 @@
   OpenAI SDK: 2.32.0
   Up to date
   ```
+
 - `hermes --help`: 30+ のサブコマンド（`chat`, `model`, `gateway`, `setup`, `doctor`, `mcp`, `skills`, `plugins`, `insights`, `acp` 他）を列挙。ヘルプ取得自体はエラーなし。
 - `hermes doctor` exit code `0`。主な警告：
   - `~/.hermes/.env` 未作成 → 想定内（未対話セットアップ）

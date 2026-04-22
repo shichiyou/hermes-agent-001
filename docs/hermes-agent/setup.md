@@ -8,6 +8,7 @@ upstream を改造しない前提。
 - devcontainer の中で作業していること
 - ネットワークから GitHub に到達できること（HTTPS、ポート443）
 - `uv` と `git` が PATH にあること（ベースラインで導入済み）
+- `ripgrep` (`rg`) が PATH にあること（この devcontainer ではベースラインで導入される想定）
 - main ブランチへの直接作業を避け、feature ブランチで作業していること（例: `feature/integrate-hermes-agent`）
 
 ## 手順

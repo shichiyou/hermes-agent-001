@@ -18,11 +18,12 @@ RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
       && if [ -f /etc/apt/sources.list ]; then \
          sed -i 's|http://archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g; s|http://security.ubuntu.com/ubuntu|https://security.ubuntu.com/ubuntu|g' /etc/apt/sources.list; \
       fi \
-      && apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    locales \
-    tzdata \
-    zstd \
+         && apt-get update && apt-get install -y --no-install-recommends \
+             build-essential \
+             locales \
+             ripgrep \
+             tzdata \
+             zstd \
     && locale-gen en_US.UTF-8 \
     && update-locale LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8 \
     && ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime \
