@@ -412,3 +412,4 @@ HERMES_MAX_ITERATIONS=90
 DISCORD_HOME_CHANNEL_NAME=hermes  # Display name for home channel (optional, for logging)
 
 # OLLAMA_API_KEY=  # Set via hermes auth add or hermes setup
+# OLLAMA_API_KEY=  # Set via hermes auth add or hermes setup

@@ -25,6 +25,8 @@ Use this skill when:
 - You need community sentiment from forums (HN, Reddit, etc.)
 - curl/wget returns empty or minimal HTML shells
 - delegate_task subagents fail to return web research results
+- **browser_navigate fails with shared-library errors** (`libglib-2.0.so.0: not found`)
+- **Search engine bot-detection blocks automated searches**
 
 ## JS-Rendered Page Extraction
 
@@ -89,7 +91,67 @@ research tasks. This was confirmed across multiple attempts during wiki updates.
 - `browser_snapshot` for quick page overview
 - Save subagents for CPU-bound work (data processing, code generation)
 
-## Common Source Patterns
+## Browser Environment Repair (Playwright/Chromium)
+
+When browser tools fail with `libglib-2.0.so.0: not found` or similar missing
+shared-library errors, the Chromium binary cannot launch. This requires
+targeted dependency installation, not a full system reinstall.
+
+**Symptom:**
+```
+browserType.launch: Target page, context or browser has been closed
+libglib-2.0.so.0 => not found
+libgobject-2.0.so.0 => not found
+```
+
+**Fix (via npx):**
+```bash
+npx playwright install-deps chromium
+```
+
+This installs ~81 Ubuntu packages (fonts, mesa, libglib2.0, libgbm, xvfb, etc.)
+and requires no sudo if run inside a Dev Container where the user may already
+have apt privileges.
+
+**Verification:**
+```bash
+ldd ~/.cache/ms-playwright/chromium_headless_shell-*/chrome-headless-shell | grep "not found"
+```
+Should return empty.
+
+## Search Engine Bot-Detection Fallback
+
+Search engines (Google, DuckDuckGo) often block or serve CAPTCHAs to headless
+browsers. Do **not** get stuck retrying the same search queries.
+
+**If bot-detection blocks:**
+1. **Stop** using generic web search immediately — it's a dead end in headless mode.
+2. **Use direct URL navigation** instead. If you know a likely authoritative
+   URL (e.g. `https://martinfowler.com/articles/harness-engineering.html`),
+   navigate there directly with `browser_navigate`.
+3. **curl fallback for text extraction.** If `browser_console` returns empty,
+   use curl with a realistic User-Agent to fetch the raw HTML, then pipe through
+   text extraction:
+   ```bash
+   curl -sL -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+     "https://example.com/page.html" |
+   sed -n '/<main/,/<\/main>/p' |
+   sed 's/<[^>]*>//g' |
+   sed 's/^[[:space:]]*$//' |
+   tr -s '\n' | head -n 500
+   ```
+4. **Never fabricate.** If both browser and curl fail, report that you cannot
+   reach the source rather than hallucinating content.
+
+**Key lesson from 2026-04-22 incident:**
+- DuckDuckGo returned CAPTCHA: "Select all squares containing a duck"
+- Google returned rate-limit page: "Our systems have detected unusual traffic"
+- The correct path was to **ignore search engines entirely** and navigate
+  directly to the known target URL after fixing the browser dependencies.
+  Then used `curl -sL | sed` as a fallback when `browser_console` returned
+  empty — this succeeded where JS extraction failed.
+
+## JS-Rendered Page Extraction
 
 | Source Type | Tool | Selector / Method |
 |-------------|------|-------------------|
@@ -105,6 +167,8 @@ research tasks. This was confirmed across multiple attempts during wiki updates.
 - **Don't rely on curl for SPAs** — always try browser if curl returns <500 chars
 - **Don't use delegate_task for web research** — it's unreliable; do it directly
 - **Don't extract from Reddit headless** — use search engine cached results or HN instead
+- **Don't retry search engines after bot-detection** — switch to direct URL navigation or curl immediately
 - **Do check extracted text length** — short output usually means wrong selector
 - **Do deduplicate HN comments** — paginated extraction can produce duplicates
 - **Do capture official responses** — company rep replies in community threads are high-signal
+- **Do verify browser health with `ldd`** before trusting browser tools — missing .so files manifest as silent launch failures
