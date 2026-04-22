@@ -1,5 +1,5 @@
 model:
-  default: gemma4:31b
+  default: glm-5.1
   provider: ollama-cloud
   base_url: https://ollama.com/v1
 providers:
