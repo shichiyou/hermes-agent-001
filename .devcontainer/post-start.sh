@@ -234,6 +234,35 @@ fi
 unset _dashboard_wait _dashboard_max_wait HERMES_DASHBOARD_PORT HERMES_GATEWAY_LOCK_FILE
 
 # ------------------------------------------------------------------
+# Browser / Playwright runtime health check
+# Ensures Chromium system dependencies are intact after each container
+# restart (rebuild could have changed the base image).
+# Playwright revision numbers (e.g. chromium_headless_shell-1217) change
+# on every Playwright update, so the path must be resolved dynamically
+# via glob instead of hard-coding a specific revision.
+# ------------------------------------------------------------------
+_CHROME_BIN=""
+for _candidate in "$HOME/.cache/ms-playwright/chromium_headless_shell-"*/chrome-headless-shell-linux64/chrome-headless-shell; do
+    if [ -x "$_candidate" ]; then
+        _CHROME_BIN="$_candidate"
+        break
+    fi
+done
+if [ -n "$_CHROME_BIN" ]; then
+    if ldd "$_CHROME_BIN" >/dev/null 2>&1; then
+        log_info "Browser tooling verified (Chromium headless-shell ldd OK)."
+    else
+        log_warn "Browser tooling DEGRADED — Chromium has missing shared libraries."
+        log_warn "Install system deps manually if auto-repair failed:"
+        log_warn "  cd ~/.hermes/hermes-agent && npx playwright install --with-deps chromium"
+    fi
+else
+    log_warn "Browser tooling not found — Playwright Chromium missing."
+    log_warn "Run: cd ~/.hermes/hermes-agent && npx playwright install --with-deps chromium"
+fi
+unset _CHROME_BIN _candidate
+
+# ------------------------------------------------------------------
 # Hermes config backup on container start
 # Runs the backup script and auto-commits any changes to the
 # hermes-backup/ directory. This ensures every boot captures the

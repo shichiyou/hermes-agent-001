@@ -191,6 +191,54 @@ if ! command -v claude >/dev/null 2>&1; then
 fi
 
 # ------------------------------------------------------------------
+# Browser / Playwright system dependencies fallback
+# Playwright Chromium binaries are cached under ~/.cache/ms-playwright/
+# (home volume, survives rebuild). However, the shared libraries (libglib,
+# libgbm, libnss3, etc.) required by Chromium live in the container image
+# layer and are lost on rebuild. install.sh runs
+#   npx playwright install --with-deps chromium
+# in a non-interactive onCreateCommand shell, so apt cannot prompt for
+# sudo and silently falls back to Chromium-binary-only install. Without
+# system deps, every browser_navigate() fails with:
+#   error while loading shared libraries: libglib-2.0.so.0: cannot open...
+#
+# Fix: detect the condition and explicitly run Playwright's deps
+# installer with sudo already known to be passwordless in this devcontainer.
+# ------------------------------------------------------------------
+if command -v npx >/dev/null 2>&1 && [ -d "$HOME/.hermes/hermes-agent/node_modules" ]; then
+    # Probe whether Chromium headless shell starts at all.
+    # Playwright revision numbers (e.g. chromium_headless_shell-1217) change
+    # on every Playwright update, so the path must be resolved dynamically.
+    _CHROME_BIN=""
+    for _candidate in "$HOME/.cache/ms-playwright/chromium_headless_shell-"*/chrome-headless-shell-linux64/chrome-headless-shell; do
+        if [ -x "$_candidate" ]; then
+            _CHROME_BIN="$_candidate"
+            break
+        fi
+    done
+    if [ -n "$_CHROME_BIN" ]; then
+        if ! ldd "$_CHROME_BIN" 2>/dev/null | grep -q "libglib-2.0.so"; then
+            log_warn "Playwright Chromium system dependencies appear missing (ldd check)."
+            log_info "Installing Chromium system dependencies via Playwright..."
+            if cd "$HOME/.hermes/hermes-agent" && npx playwright install --with-deps chromium >/dev/null 2>&1; then
+                log_info "Chromium system dependencies installed successfully."
+            else
+                log_warn "Playwright dependency install returned non-zero."
+                log_warn "Browser tools may not work until deps are installed."
+                log_warn "Retry manually: cd ~/.hermes/hermes-agent && npx playwright install --with-deps chromium"
+            fi
+        else
+            log_info "Playwright Chromium system dependencies verified (ldd OK)."
+        fi
+    else
+        log_warn "Playwright Chromium binary not found in ~/.cache/ms-playwright/."
+        log_warn "Browser tools will not work. Rerun install.sh or:"
+        log_warn "  cd ~/.hermes/hermes-agent && npx playwright install --with-deps chromium"
+    fi
+    unset _CHROME_BIN _candidate
+fi
+
+# ------------------------------------------------------------------
 # Post-restore reminders (manual steps required)
 # ------------------------------------------------------------------
 if [ ! -f "$HOME/.hermes/auth.json" ] || [ ! -s "$HOME/.hermes/auth.json" ]; then

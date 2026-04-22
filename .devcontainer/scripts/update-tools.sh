@@ -196,6 +196,7 @@ DEFAULT_TOOL_NAMES=(
     claude-code
     codex
     copilot
+    playwright
 )
 
 # --------------------------------------------------------------------------
@@ -489,6 +490,24 @@ update_copilot() {
     else
         echo -e "${YELLOW}  installed, but not yet initialized${NC}"
     fi
+}
+
+
+update_playwright() {
+    echo -e "${CYAN}[playwright]${NC} Updating Playwright and Chromium..."
+    local root_dir
+    require_workspace_root_with_message || return 1
+    root_dir="$(find_workspace_root)"
+
+    # Update playwright package in the project
+    echo -e "  Updating playwright npm package..."
+    (cd "$root_dir" && npm install playwright@latest)
+
+    # Install the corresponding browser binaries
+    echo -e "  Installing latest Chromium binaries..."
+    (cd "$root_dir" && npx playwright install chromium)
+
+    echo -e "${GREEN}  Playwright and Chromium updated successfully${NC}"
 }
 
 # --------------------------------------------------------------------------

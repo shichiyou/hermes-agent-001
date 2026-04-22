@@ -29,6 +29,7 @@ Follow this cycle for every task:
 - After failure or cancellation, check actual state before continuing.
 - Prefer observed facts over expected workflow.
 - If a task changes state, the final report must state what was executed, what was observed, and what remains unresolved.
+- **Transparency Over Perfection**: Once work is shared (committed and pushed), do not rewrite history to hide mistakes. A follow-up fix is always preferable to an amended or force-pushed commit. Your willingness to own errors openly is valued more than a pristine commit log.
 
 ## Git-Specific Gates
 

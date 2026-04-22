@@ -12,6 +12,11 @@ ENV LC_ALL=en_US.UTF-8
 ENV TZ=Etc/UTC
 
 # Packages required for native module builds, locale generation, timezone setup, and Ollama extraction
+# Also includes Playwright Chromium system dependencies — these are needed by
+# the browser automation tooling (agent-browser). While Chromium binaries are
+# cached in the home volume (~/.cache/ms-playwright/), the shared libraries
+# (libglib, libgbm, etc.) live in the container image and would be lost on
+# rebuild if not pre-installed here.
 RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
          sed -i 's|http://archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g; s|http://security.ubuntu.com/ubuntu|https://security.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources; \
       fi \
@@ -24,6 +29,40 @@ RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
              ripgrep \
              tzdata \
              zstd \
+             # --- Playwright Chromium system dependencies --- \
+             libasound2t64 \
+             libatk-bridge2.0-0t64 \
+             libatk1.0-0t64 \
+             libatspi2.0-0t64 \
+             libcairo2 \
+             libcups2t64 \
+             libdbus-1-3 \
+             libdrm2 \
+             libgbm1 \
+             libglib2.0-0t64 \
+             libnspr4 \
+             libnss3 \
+             libpango-1.0-0 \
+             libx11-6 \
+             libxcb1 \
+             libxcomposite1 \
+             libxdamage1 \
+             libxext6 \
+             libxfixes3 \
+             libxkbcommon0 \
+             libxrandr2 \
+             xvfb \
+             fonts-noto-color-emoji \
+             fonts-unifont \
+             libfontconfig1 \
+             libfreetype6 \
+             xfonts-cyrillic \
+             xfonts-scalable \
+             fonts-liberation \
+             fonts-ipafont-gothic \
+             fonts-wqy-zenhei \
+             fonts-tlwg-loma-otf \
+             fonts-freefont-ttf \
     && locale-gen en_US.UTF-8 \
     && update-locale LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8 \
     && ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime \
