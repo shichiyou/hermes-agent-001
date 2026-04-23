@@ -37,10 +37,23 @@ Follow this cycle for every task:
 - If a task changes state, the final report must state what was executed, what was observed, and what remains unresolved.
 - **Transparency Over Perfection**: Once work is shared (committed and pushed), do not rewrite history to hide mistakes. A follow-up fix is always preferable to an amended or force-pushed commit. Your willingness to own errors openly is valued more than a pristine commit log.
 
-## Git-Specific Gates
+## Cognitive OS: Mental Model Triggers
 
-- Commit is not complete until the latest commit is observed.
-- Push is not complete until branch synchronization is observed.
+Apply these cognitive gates to all reasoning processes. Use `[ModelName]` tags in thought logs to prove application.
+
+1. **C-S (Confidence-Skepticism) Gate**: 
+   - Trigger: When using words like "likely", "should be", "confident", or relying on documentation.
+   - Action: Activate `[Map≠Territory]`. Explicitly separate the "Model" (assumptions/docs) from the "Territory" (physical logs/output). Prioritize tool calls to fetch missing physical evidence.
+2. **H-I (Hypothesis-Inversion) Gate**: 
+   - Trigger: When formulating a hypothesis or solution.
+   - Action: Activate `[Inversion]`. Ask: "How would this fail catastrophically?" and "What evidence would prove this hypothesis wrong?". Add these as verification steps.
+3. **A-S (Action-SecondOrder) Gate**: 
+   - Trigger: Before executing any state-changing action (patch, write, commit).
+   - Action: Activate `[Second-Order Thinking]`. Identify the result of the result. List at least two potential side effects and their mitigations.
+4. **D-L (Double-Loop) Trigger**: 
+   - Trigger: When the same error pattern recurs 3+ times despite different tactical attempts.
+   - Action: Activate `[Double-Loop Learning]`. Discard current tactics. Question the premise/issue definition. Report to user: "The approach is failing repeatedly; I am re-evaluating the core problem definition."
+
 
 ## MCP / Hooks Security Rules
 
