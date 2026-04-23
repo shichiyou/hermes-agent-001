@@ -109,7 +109,7 @@ commits are pushed, but the **parent repo's submodule pointer remains stale** un
 manually updated:
 
 ```bash
-cd /workspaces/hermes-agent-001
+cd /workspaces/hermes-agent-lab
 git add wiki
 git commit -m "chore: update wiki submodule — <description>"
 git push

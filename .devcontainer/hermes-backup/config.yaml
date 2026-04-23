@@ -1,11 +1,10 @@
 model:
-  default: glm-5.1
-  provider: ollama-cloud
-  base_url: https://ollama.com/v1
+  default: gemma4:e4b
+  provider: ollama-launch
 providers:
   ollama-launch:
     api: http://127.0.0.1:11434/v1
-    default_model: glm-5.1:cloud
+    default_model: gemma4:e4b
     models:
     - glm-5.1:cloud
     - gemma4:31b-cloud
@@ -269,6 +268,7 @@ delegation:
   provider: ''
   base_url: ''
   api_key: ''
+  inherit_mcp_toolsets: true
   max_iterations: 50
   reasoning_effort: ''
   max_concurrent_children: 3
@@ -322,6 +322,7 @@ hooks: {}
 hooks_auto_accept: false
 personalities: {}
 security:
+  allow_private_urls: false
   redact_secrets: true
   tirith_enabled: true
   tirith_path: tirith
@@ -344,6 +345,11 @@ logging:
   backup_count: 3
 network:
   force_ipv4: false
+sessions:
+  auto_prune: false
+  retention_days: 90
+  vacuum_after_prune: true
+  min_interval_hours: 24
 _config_version: 22
 smart_model_routing:
   enabled: false

@@ -14,7 +14,7 @@ triggers:
 ## Problem
 
 Hermes Agent generates files during Discord/Cron tasks (research reports, audit reports, cloned repos).
-When these are written inside the parent repository (`/workspaces/hermes-agent-001/`), they pollute
+When these are written inside the parent repository (`/workspaces/hermes-agent-lab/`), they pollute
 the repo and get accidentally committed. This skill enforces output routing and pre-commit checks.
 
 ## Output Routing Rules
@@ -30,7 +30,7 @@ the repo and get accidentally committed. This skill enforces output routing and 
 
 ## Pre-Commit Checklist (MUST run before every `git add` in the parent repo)
 
-1. **Path check**: Is the file inside `/workspaces/hermes-agent-001/`?
+1. **Path check**: Is the file inside `/workspaces/hermes-agent-lab/`?
 2. **Intent check**: Is this an intentional change to the repo (code, config, docs), OR an agent-generated artifact?
 3. **Redirect**: If artifact -> write to `~/workspace/` instead, do NOT stage it.
 4. **Naming guard**: Files matching these patterns in the repo root MUST NOT be committed:
@@ -59,11 +59,11 @@ If agent-generated files are found in the parent repo:
 
 ```bash
 # Move to correct location
-mv /workspaces/hermes-agent-001/<file>-research-report.md ~/workspace/reports/
-mv /workspaces/hermes-agent-001/<file>-audit-report.md ~/workspace/audits/
+mv /workspaces/hermes-agent-lab/<file>-research-report.md ~/workspace/reports/
+mv /workspaces/hermes-agent-lab/<file>-audit-report.md ~/workspace/audits/
 
 # Remove from git tracking
-cd /workspaces/hermes-agent-001
+cd /workspaces/hermes-agent-lab
 git rm <file>
 
 # Commit the cleanup
@@ -83,6 +83,6 @@ After any file write or git operation in the parent repo, verify:
 
 ```bash
 # Check for agent artifacts in repo root
-ls /workspaces/hermes-agent-001/*-report.md /workspaces/hermes-agent-001/*-audit.md 2>/dev/null
+ls /workspaces/hermes-agent-lab/*-report.md /workspaces/hermes-agent-lab/*-audit.md 2>/dev/null
 # Should return nothing. If files found -> move to ~/workspace/
 ```

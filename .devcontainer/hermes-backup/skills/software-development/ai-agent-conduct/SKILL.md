@@ -182,6 +182,11 @@ These principles are generic. Each project must create a `PROJECT_CONTEXT.md` co
 - **Simulation Bias**: Be wary of "simulating" a fix instead of actually executing it.
 - **Speculation Reporting**: Never report completion without observed verification.
 - **Skipping HOW**: If verification method is unclear, stop and ask. Do not proceed on speculation.
+- **Conceptual Assumption**: Never assume the role or location of a file based solely on its name or a user's mention. Always verify the physical "ground truth" (e.g., search `~/.hermes/` or `docs/`) before creating or modifying files. (Example: Do not assume `SOUL.md` belongs in the root if it is actually a system-level config file).
+- **Formality Trap**: The act of uttering "completed" is NOT completion. Training bias rewards conclusive-sounding responses, often causing the agent to treat the word itself as sufficient proof while skipping actual physical verification. This is a root cause of "Ghost Completion."
+- **Verification Cost Avoidance**: Skipping physical inspection (`read_file`, `terminal`, `search_files`) because it costs time/tokens, and instead substituting string-matching (e.g., seeing "Workflow completed successfully" in output) as a proxy for state confirmation. This destroys experimental validity.
+- **Clean-State Neglect**: After any failure, if the next attempt does NOT start from a reverted/known-clean condition, the experiment is ruined. Cumulative, unrecorded changes create an unrecoverable environment that makes root cause analysis impossible.
+- **Cumulative Contamination**: Each speculative (undocumented, official-docs-unverified) config change or workaround adds pollution. This compounds until the test subject is no longer the original system but the agent's own accumulated garbage. Check: can you still diff your changes against the official baseline?
 
 ## Integration with thinking-framework
 
