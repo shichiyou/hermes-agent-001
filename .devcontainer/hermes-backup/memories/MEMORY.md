@@ -5,7 +5,7 @@
 - /home/vscodeはnamed volume（down -vで消滅）、/workspacesはホストバインド（安全）
 
 ## Wiki/Cron環境 統合（2026-04-19）
-- Wiki: /workspaces/hermes-agent-lab/wiki, ~/wikiはsymlink, GitHub shichiyou/wiki Private
+- Wiki: /workspaces/hermes-agent-001/wiki, ~/wikiはsymlink, GitHub shichiyou/wiki Private
 - hermes gateway必須（cronスケジューラが内部スレッド）。~/.bashrcに自動起動設定済み
 - Grounding Directive: 全7jobに注入済み（simulation hallucination防止）
 - wiki-daily-summaryはdeliver=local（originで配信エラー）
@@ -35,7 +35,7 @@
 ## Devcontainer DR（feat/devcontainer-persistence）
 - Claude Code消失: Dockerfile層がhome volumeマウントで隠蔽 → on-create.shフォールバックインストール
 - Hermes 429: 3回リトライ10s間隔, .dr_recoveryマーカーで自動バックアップブロック
-- クリーンDRテスト: `docker volume rm devcontainer-home-hermes-agent-lab` → Rebuild
+- クリーンDRテスト: `docker volume rm devcontainer-home-hermes-agent-001` → Rebuild
 §
 ## 課題解決プロセス（thinking-framework常時適用）
 障害→MECE分類+物理証拠確認→仮説→反証可能性自問→戦術設計
