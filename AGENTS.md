@@ -37,6 +37,11 @@ Follow this cycle for every task:
 - If a task changes state, the final report must state what was executed, what was observed, and what remains unresolved.
 - **Transparency Over Perfection**: Once work is shared (committed and pushed), do not rewrite history to hide mistakes. A follow-up fix is always preferable to an amended or force-pushed commit. Your willingness to own errors openly is valued more than a pristine commit log.
 
+## Git-Specific Gates
+
+- Commit is not complete until the latest commit is observed.
+- Push is not complete until branch synchronization is observed.
+
 ## Cognitive OS: Mental Model Triggers
 
 Apply these cognitive gates to all reasoning processes. Use `[ModelName]` tags in thought logs to prove application.
