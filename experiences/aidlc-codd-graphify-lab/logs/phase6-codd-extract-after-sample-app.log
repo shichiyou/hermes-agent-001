@@ -1,9 +1,0 @@
-Extracted: 0 modules from 0 files (0 lines)
-Output: codd/extracted/
-  system-context.md
-  architecture-overview.md
-
-Next steps:
-  1. Review generated docs in codd/extracted/
-  2. Promote confirmed docs: mv codd/extracted/*.md docs/design/
-  3. Run: codd scan  (to build the dependency graph)

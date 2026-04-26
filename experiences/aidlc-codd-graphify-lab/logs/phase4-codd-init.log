@@ -1,5 +1,0 @@
-CoDD initialized in /workspaces/hermes-agent-001/experiences/aidlc-codd-graphify-lab/codd
-  codd.yaml         — project config
-  docs/requirements/requirements.md  — requirements (frontmatter added)
-
-Next: codd generate --wave 2  (AI generates design docs)

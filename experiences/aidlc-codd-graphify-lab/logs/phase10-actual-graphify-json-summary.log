@@ -1,5 +1,0 @@
-exists= True
-top_level_keys= ['directed', 'graph', 'hyperedges', 'links', 'multigraph', 'nodes']
-nodes_count= 23
-edges_count= NoneType:None
-communities_count= NoneType:None
