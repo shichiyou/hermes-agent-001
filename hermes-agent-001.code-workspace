@@ -1,0 +1,30 @@
+{
+  "folders": [
+    {
+      "name": "プロジェクトルート",
+      "path": "."
+    },
+    {
+      "name": "実験: aidlc-codd-graphify-lab",
+      "path": "experiences/aidlc-codd-graphify-lab"
+    },
+    {
+      "name": "Wiki",
+      "path": "wiki"
+    }
+  ],
+  "settings": {
+    "explorer.compactFolders": false,
+    "files.exclude": {
+      "**/.git": true,
+      "**/__pycache__": true,
+      "**/.pytest_cache": true
+    },
+    "search.exclude": {
+      "**/.git": true,
+      "**/__pycache__": true,
+      "**/.pytest_cache": true,
+      "**/node_modules": true
+    }
+  }
+}
