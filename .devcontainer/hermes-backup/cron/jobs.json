@@ -20,21 +20,21 @@
       "schedule_display": "0 * * * *",
       "repeat": {
         "times": null,
-        "completed": 45
+        "completed": 48
       },
       "enabled": true,
       "state": "scheduled",
       "paused_at": null,
       "paused_reason": null,
       "created_at": "2026-04-20T06:44:07.819715+00:00",
-      "next_run_at": "2026-04-24T01:00:00+00:00",
-      "last_run_at": "2026-04-23T21:55:44.318268+00:00",
-      "last_status": "ok",
-      "last_error": null,
+      "next_run_at": "2026-04-26T09:00:00+00:00",
+      "last_run_at": "2026-04-26T06:00:51.086421+00:00",
+      "last_status": "error",
+      "last_error": "ValueError: Model gemma4:26b has a context window of 32,768 tokens, which is below the minimum 64,000 required by Hermes Agent.  Choose a model with at least 64K context, or set model.context_length in config.yaml to override.",
       "last_delivery_error": null,
       "deliver": "local",
       "origin": null
     }
   ],
-  "updated_at": "2026-04-24T00:00:52.698602+00:00"
+  "updated_at": "2026-04-26T08:00:00.918514+00:00"
 }
