@@ -33,6 +33,28 @@ Once the submodule internal state is a clean linear progression of `origin/main`
 - `git add <submodule-dir>`
 - `git commit -m "chore: update <submodule> reference to latest main"`
 
+### 4. Converting an Existing Tracked Directory into a Submodule
+When replacing an already-tracked normal directory with a submodule at the same path, do not assume `git rm -r <path>` removes the physical directory. It removes tracked files, but ignored or previously untracked generated artifacts can remain and cause `git submodule add <url> <path>` to fail with:
+
+```text
+fatal: '<path>' already exists and is not a valid git repo
+```
+
+Safe procedure:
+1. Preserve the directory content first by copying it outside the parent repository, e.g. `~/workspace/repos/<repo-name>`.
+2. Initialize and push the independent repository from that copy. Verify `HEAD == origin/main` before touching the parent pointer.
+3. In the parent repository, run `git rm -r <path>`.
+4. Before deleting the leftover physical directory, inspect it:
+   - `find <path> -maxdepth 4 -type f | sort | sed -n '1,200p'`
+   - `git ls-files --others --exclude-standard <path> | sort`
+   - `git status --ignored --short <path> | sed -n '1,160p'`
+5. If the remaining files are only disposable/generated artifacts already excluded from the independent repository (for example `.venv/`, `.aidlc/`, `__pycache__/`, `.pytest_cache/`, tool scan caches), remove the physical directory: `rm -rf <path>`.
+6. Run `git submodule add <url> <path>`.
+7. Verify the parent index has mode `160000` for `<path>` and `.gitmodules` points to the same URL as the submodule's internal `origin`.
+8. Commit and push the parent, then verify `git clone` + `git submodule update --init --recursive` in a clean temporary directory.
+
+Important distinction: a clean `git submodule update --init --recursive` checkout normally leaves submodules in `HEAD (no branch)` detached state. That is acceptable for reproducible checkout if the checked-out commit equals `origin/main`. For active development inside the submodule, explicitly `git checkout main && git pull --ff-only`.
+
 ## Pitfalls & Anti-Patterns
 - **The "Status Illusion"**: Thinking `git add .` in the parent repository saves submodule content. (It only saves the commit hash pointer).
 - **The "Detached Commit"**: Committing while in `detached HEAD`. This creates a "ghost commit" that is lost if the branch is switched without a merge.

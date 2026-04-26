@@ -1,7 +1,8 @@
 model:
   default: gpt-5.5
-  provider: openai-codex
-  base_url: https://chatgpt.com/backend-api/codex
+  provider: copilot
+  base_url: https://api.githubcopilot.com
+  api_mode: codex_responses
 providers:
   ollama-launch:
     api: http://127.0.0.1:11434/v1
@@ -320,16 +321,17 @@ approvals:
   timeout: 60
   cron_mode: deny
 command_allowlist:
-- git force push short flag (rewrites remote history)
-- stop/restart hermes gateway (kills running agents)
-- delete in root path
-- script execution via -e/-c flag
-- script execution via heredoc
-- pipe remote content to shell
-- hermes update (restarts gateway, kills running agents)
-- kill hermes/gateway process (self-termination)
 - kill process via pgrep expansion (self-termination)
+- script execution via -e/-c flag
+- git force push short flag (rewrites remote history)
+- script execution via heredoc
+- recursive delete
+- hermes update (restarts gateway, kills running agents)
+- stop/restart hermes gateway (kills running agents)
+- kill hermes/gateway process (self-termination)
 - start gateway outside systemd (use 'systemctl --user restart hermes-gateway')
+- pipe remote content to shell
+- delete in root path
 quick_commands: {}
 hooks: {}
 hooks_auto_accept: false

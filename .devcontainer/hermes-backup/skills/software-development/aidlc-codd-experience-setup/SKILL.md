@@ -1,58 +1,328 @@
 ---
 name: aidlc-codd-experience-setup
-description: Procedure for setting up a hands-on verification environment for AI-DLC combined with CoDD.
+description: Procedure for setting up a hands-on verification environment for AI-DLC combined with CoDD and Graphify using official setup paths, not fork-based concept mimicry.
 category: software-development
 ---
 
-# AI-DLC x CoDD Experience Setup
-This skill describes the procedure for setting up a hands-on verification environment for AI-Driven Life Cycle (AI-DLC) combined with Coherence-Driven Development (CoDD).
+# AI-DLC × CoDD × Graphify Experience Setup
 
 ## Trigger
-When the user wants to create a "sandbox" or "experience repository" to test AI-DLC workflows and CoDD (synchronization between docs and code).
+Use this skill when the user wants to create a hands-on lab or experience environment to understand or verify AI-DLC, CoDD, and Graphify workflows, especially when referencing articles that combine:
 
-## Workflow
-1. **Create an independent lab directory/repository**:
-   - Prefer a normal project directory such as `experiences/aidlc-codd-graphify-lab/` or a new standalone repo.
-   - Do **not** fork or modify `awslabs/aidlc-workflows` for the lab. Treat it as an upstream rule source, not as the lab's parent project.
-   - Do **not** add `aidlc-workflows`, `codd-dev`, or `graphify` as submodules unless the user explicitly wants to study their source code.
+- `awslabs/aidlc-workflows`
+- `yohey-w/codd-dev`
+- `safishamsi/graphify`
 
-2. **Install AI-DLC from the official distribution path**:
-   - Use the `awslabs/aidlc-workflows` release zip (`ai-dlc-rules-v<version>.zip`) and copy `aidlc-rules/` into the target project according to the official platform-specific setup.
-   - Verify the chosen assistant integration physically exists, e.g. `.kiro/`, `.cursor/`, `CLAUDE.md`, `AGENTS.md`, `.aidlc-rule-details/`, etc. depending on the platform.
-   - Verify AI-DLC workflow execution by observing generated `aidlc-docs/`, especially `aidlc-docs/aidlc-state.md` and `aidlc-docs/audit.md`.
+## Core Principle
+Do **not** fork or submodule `awslabs/aidlc-workflows` as the lab itself.
 
-3. **Install and run CoDD using the official CLI**:
-   - Install with `pip install codd-dev` or a project virtual environment equivalent.
-   - For greenfield: run `codd init --project-name ... --language ... --requirements ...`, then `codd plan --init`, `codd generate`, `codd validate`, `codd implement`, `codd assemble` as appropriate.
-   - For brownfield: run `codd extract`, `codd require`, `codd plan --init`, `codd scan`, `codd impact`, `codd audit --skip-review`, `codd measure` as appropriate.
-   - Verify CoDD artifacts physically exist: `codd.yaml`, `codd/` or `.codd/` scan/cache outputs, generated design docs with `codd:` YAML frontmatter containing `node_id`, `depends_on`, and source/module mappings.
+The official repositories have distinct roles:
 
-4. **Install and run Graphify using the official CLI**:
-   - Install the official package `graphifyy`, e.g. `uv tool install graphifyy && graphify install`, `pipx install graphifyy && graphify install`, or a project venv.
-   - Run `/graphify .` or the platform-specific invocation; for Codex use `$graphify .`.
-   - Run the relevant always-on integration if desired, e.g. `graphify claude install`, `graphify codex install`, `graphify hermes install`, etc.
-   - Verify `graphify-out/graph.json` and `graphify-out/GRAPH_REPORT.md` exist. If using Codex, verify `.codex/hooks.json`; if using Claude Code, verify `CLAUDE.md` and hook settings; if using Hermes, verify `AGENTS.md`/skill integration as documented.
+| Repository | Correct role | Incorrect use |
+|---|---|---|
+| `awslabs/aidlc-workflows` | AI-DLC rules distribution source. Download release ZIP and install rules into the target project/assistant configuration. | Forking it and adding a demo project inside it. |
+| `yohey-w/codd-dev` | CLI package installed with `pip install codd-dev`, then used via `codd init`, `codd extract`, `codd validate`, etc. | Hand-writing docs that merely resemble CoDD concepts. |
+| `safishamsi/graphify` | CLI package installed as PyPI package `graphifyy`, then used to produce `graphify-out/graph.json` and `GRAPH_REPORT.md`. | Mentioning Graphify without generating `graphify-out/`. |
 
-5. **Three-way coherence closure**:
-   - After code or design changes, run and record the article's intended loop: `codd extract` → `codd validate` → `graphify --update` or `/graphify --update` → `graphify query ...`.
-   - Record Raw Output in the lab README: command, exact output, generated files, and what each output proves.
+A valid lab is a **separate target project** that has these tools installed and run against it.
 
-6. **Persistence**:
-   - Commit only the intentional lab project files and generated verification artifacts that are meant to be shared.
-   - Do not commit ad-hoc research reports or external source clones into the parent repository; route those to `~/workspace/` per workspace hygiene rules.
+## Required Lab Shape
+Create a normal directory or independent repository such as:
 
-## Pitfalls
-- **Do not fork AI-DLC as the lab substrate**: Forking `awslabs/aidlc-workflows` and adding `demo-project/` only imitates the concept. It does not prove official AI-DLC setup, CoDD setup, or Graphify setup.
-- **Submodule mismatch hazard**: A parent `.gitmodules` entry can point to `awslabs/aidlc-workflows` while the submodule's internal `origin` points to a personal fork. Always verify both parent `.gitmodules` and submodule `git remote -v` before trusting the setup.
-- **Concept imitation is not verification**: A hand-written `docs/DESIGN.md` plus `src/*.py` is not CoDD unless `codd` is installed, frontmatter exists, and `codd validate`/`scan` outputs are observed.
-- **Graphify is absent until outputs exist**: Claims of graph-based architecture understanding require `graphify-out/graph.json` and `graphify-out/GRAPH_REPORT.md`; otherwise no graph was built.
-- **AI-DLC is absent until `aidlc-docs/` exists**: Rules copied into a repo are not enough. Workflow execution should produce `aidlc-docs/aidlc-state.md` and `aidlc-docs/audit.md`.
-- **Path Mapping**: Ensure the agent maps conceptual roots to physical paths.
+```text
+experiences/aidlc-codd-graphify-lab/
+├── README.md
+├── sample-app/
+├── AGENTS.md                         # Codex AI-DLC project instructions
+├── CLAUDE.md                         # Claude Code AI-DLC project memory
+├── .github/copilot-instructions.md   # GitHub Copilot custom instructions
+├── .aidlc-rule-details/              # AI-DLC rule details copied from release ZIP
+├── codd/
+│   └── codd.yaml                     # CoDD config generated by current codd-dev
+├── docs/requirements/requirements.md
+├── sample-app/graphify-out/
+│   ├── graph.json
+│   ├── GRAPH_REPORT.md
+│   └── graph.html
+└── logs/
+```
 
-## Verification
-- `git status --short --branch` and `git submodule status --recursive` confirm the lab is not an accidental fork/submodule of the tool repositories.
-- `git config -f .gitmodules --get-regexp 'submodule\\..*' || true` and, for any submodule, `git -C <path> remote -v` confirm no parent/internal URL mismatch.
-- `command -v codd && codd --version` confirms CoDD installation; `codd validate`/`codd scan` Raw Output confirms actual CoDD operation.
-- `command -v graphify && graphify --version` confirms Graphify installation; `test -f graphify-out/graph.json` and `test -f graphify-out/GRAPH_REPORT.md` confirm graph generation.
-- `test -f aidlc-docs/aidlc-state.md` and `test -f aidlc-docs/audit.md` confirm AI-DLC workflow artifacts.
-- `grep -R "^codd:" -n docs aidlc-docs 2>/dev/null` or equivalent confirms CoDD frontmatter exists.
+Do not use `experiences/aidlc-codd-demo` as a fork/submodule of `aidlc-workflows`.
+
+Current observed tool behavior may differ from older assumptions:
+
+- `codd init` creates `codd/codd.yaml`, not necessarily root-level `codd.yaml`.
+- `graphify update sample-app` writes outputs under the target directory (`sample-app/graphify-out/`), not the caller's current directory.
+- `graphify` CLI command exists after installing PyPI package `graphifyy`; there is no `graphifyy` CLI command.
+- AI-DLC itself is a rule/workflow setup, not an executable generator of `aidlc-docs/`; only claim `aidlc-docs/` if an AI-DLC session actually generated it.
+
+## Setup Workflow
+
+### 1. Preflight / workspace hygiene
+
+1. Confirm parent repository state:
+
+```bash
+git status --short --branch
+git submodule status --recursive || true
+git config -f .gitmodules --get-regexp 'submodule\..*' || true
+```
+
+2. If an invalid old lab exists as a submodule, remove it before creating the new lab:
+
+```bash
+git submodule deinit -f experiences/aidlc-codd-demo
+git rm -f experiences/aidlc-codd-demo
+rm -rf .git/modules/experiences/aidlc-codd-demo
+git commit -m "chore: remove invalid aidlc codd demo submodule"
+git push origin main
+```
+
+3. Verify the old reference is fully gone:
+
+```bash
+git submodule status --recursive || true
+git config -f .gitmodules --get-regexp 'submodule\..*' || true
+git config --get-regexp 'submodule\.experiences/aidlc-codd-demo\..*' || true
+git ls-tree -r --name-only HEAD | grep '^experiences/aidlc-codd-demo' || echo 'NO_TRACKED_TARGET_PATH'
+test -e experiences/aidlc-codd-demo && echo 'STILL_EXISTS' || echo 'REMOVED'
+test -e .git/modules/experiences/aidlc-codd-demo && echo 'MODULE_STILL_EXISTS' || echo 'MODULE_REMOVED'
+```
+
+### 2. Create the new target lab
+
+```bash
+mkdir -p experiences/aidlc-codd-graphify-lab
+cd experiences/aidlc-codd-graphify-lab
+git init  # only if this will be an independent repo; otherwise keep it as a normal parent-repo directory
+```
+
+Decide explicitly whether the lab is:
+
+- a normal directory committed in the parent repository, or
+- an independent repository/submodule.
+
+For most experiments, prefer a normal directory unless the user asks for a separate repo.
+
+### 3. Install AI-DLC rules using official distribution path
+
+Follow `awslabs/aidlc-workflows` README:
+
+1. Download latest release zip named `ai-dlc-rules-v<release-number>.zip` from GitHub Releases to a directory outside the project.
+2. Extract it.
+3. Copy `aidlc-rules/aws-aidlc-rules` and `aidlc-rules/aws-aidlc-rule-details` into the correct assistant-specific location.
+
+Examples depend on the target assistant. For the Codex / Claude Code / GitHub Copilot combination verified in this environment, use:
+
+- Codex: copy `aws-aidlc-rules/core-workflow.md` to `AGENTS.md`.
+- Claude Code: copy `aws-aidlc-rules/core-workflow.md` to `CLAUDE.md`.
+- GitHub Copilot: copy `aws-aidlc-rules/core-workflow.md` to `.github/copilot-instructions.md`.
+- Copy `aws-aidlc-rule-details/` to `.aidlc-rule-details/`.
+
+Other examples from the official README:
+
+- Kiro: `.kiro/steering/aws-aidlc-rules` and `.kiro/aws-aidlc-rule-details`
+- Cursor: `.cursor/rules/ai-dlc-workflow.mdc` plus `.aidlc-rule-details/`
+
+Record exact commands and raw outputs in `README.md`.
+
+Security note: do not run or commit hook-generating setup commands unless explicitly reviewed. Project-scoped hook/config files such as `.claude/settings.json`, `.codex/hooks.json`, and `.git/hooks/*` require special scrutiny.
+
+### 4. Install and run CoDD using official CLI
+
+Install:
+
+```bash
+pip install codd-dev
+```
+
+For a new project:
+
+```bash
+codd init --project-name "aidlc-codd-graphify-lab" --language "<language>" --requirements spec.txt
+codd plan --init
+waves=$(codd plan --waves)
+for wave in $(seq 1 "$waves"); do codd generate --wave "$wave"; done
+codd validate
+codd scan
+codd implement
+codd assemble
+```
+
+For an existing sample app:
+
+```bash
+codd extract
+codd require
+codd plan --init
+codd scan
+codd impact
+codd audit --skip-review
+codd measure
+```
+
+Required evidence:
+
+- `codd --version` or equivalent availability proof
+- `codd/codd.yaml` exists (or root `codd.yaml` if future versions change location)
+- `codd/` generated artifacts such as `codd/extracted/`
+- `codd scan` output
+- `codd validate` output
+- Markdown documents contain CoDD frontmatter such as `codd.node_id`, `depends_on`, and/or `modules`
+
+Observed pitfall: after creating a nested `sample-app/`, current `codd-dev` may still scan default `src/` and `tests/`. Patch `codd/codd.yaml` surgically:
+
+```yaml
+scan:
+  source_dirs:
+    - "sample-app/src/"
+  test_dirs:
+    - "sample-app/tests/"
+  doc_dirs:
+    - "docs/"
+```
+
+Then verify:
+
+```bash
+codd scan
+codd measure
+codd extract
+```
+
+Do not treat `codd plan --init` failure as fatal if it fails due to external AI quota/usage limits; record the raw failure and continue with non-AI validations (`validate`, `scan`, `measure`, `extract`).
+
+### 5. Install and run Graphify using official package name
+
+Install Graphify via the official PyPI package `graphifyy`, not `graphify`:
+
+```bash
+uv tool install graphifyy && graphify install
+# or
+pipx install graphifyy && graphify install
+# or
+pip install graphifyy && graphify install
+```
+
+Build/update graph for code-only corpora without requiring an LLM:
+
+```bash
+graphify update sample-app
+```
+
+Observed behavior: output is written under the target directory, e.g. `sample-app/graphify-out/`, not necessarily `./graphify-out/`.
+
+Optional read/query commands:
+
+```bash
+cd sample-app
+graphify explain "TaskService"
+graphify query "How does a task move from todo to done?"
+graphify benchmark graphify-out/graph.json
+```
+
+Avoid `graphify claude install` / `graphify hook install` unless the user explicitly wants hook integration and project hook security has been reviewed; these commands can write hook/config files. For this lab type, prefer direct CLI generation and static AI-DLC project instruction files.
+
+Required evidence:
+
+- `graphify --version` or availability proof
+- `graphify-out/graph.json`
+- `graphify-out/GRAPH_REPORT.md`
+- optional `graphify query ...` output
+- `.graphifyignore` if excluding generated/config files
+
+### 6. Three-way coherence closure
+
+After code generation or code changes, verify the article’s intended loop physically:
+
+```bash
+codd extract
+codd validate
+graphify --update .
+graphify query "coverage, missing links, and major risks" --graph graphify-out/graph.json
+```
+
+The final report must state:
+
+- what command was executed,
+- what output was observed,
+- which artifact proves AI-DLC / CoDD / Graphify actually ran,
+- what remains unverified.
+
+## Anti-patterns / Failure Indicators
+
+If any of the following is true, do not claim the lab is complete:
+
+- `codd` command is missing.
+- `graphify` command is missing.
+- `aidlc-docs/` is missing after claiming AI-DLC execution.
+- `codd.yaml` or CoDD frontmatter is missing after claiming CoDD setup.
+- `graphify-out/graph.json` is missing after claiming Graphify setup.
+- The lab is just a fork of `awslabs/aidlc-workflows` with a hand-written `demo-project/` added.
+- `HANDS_ON_LAB.md` only contains prompt examples and no executable setup commands / raw verification output.
+
+## Verification Gates
+
+Minimum acceptable final verification:
+
+```bash
+git status --short --branch
+find . -maxdepth 3 -type f | sort
+command -v codd && codd --version || true
+command -v graphify && graphify --help || true
+test -f codd/codd.yaml && echo 'HAS_CODD_CONFIG'
+test -f AGENTS.md && echo 'HAS_CODEX_AIDLC'
+test -f CLAUDE.md && echo 'HAS_CLAUDE_CODE_AIDLC'
+test -f .github/copilot-instructions.md && echo 'HAS_COPILOT_AIDLC'
+test -f sample-app/graphify-out/graph.json && echo 'HAS_GRAPHIFY_GRAPH'
+test -f sample-app/graphify-out/GRAPH_REPORT.md && echo 'HAS_GRAPHIFY_REPORT'
+python -m pytest -v sample-app/tests || true
+```
+
+Before staging/committing, verify that generated local environments and hook/config risks are absent:
+
+```bash
+git ls-files --others --exclude-standard experiences/aidlc-codd-graphify-lab | grep -E '(^|/)(\.venv|\.aidlc|__pycache__|\.pytest_cache)(/|$)' || true
+git diff --cached --name-only | grep -E '(^|/)\.claude/settings|(^|/)\.codex/hooks|(^|/)\.git/hooks|settings\.local\.json' || true
+```
+
+README/log consistency gate:
+
+```bash
+python - <<'PY'
+import re
+from pathlib import Path
+readme=Path('README.md').read_text()
+missing=[]
+for p in sorted(set(re.findall(r'`(logs/[^`]+)`', readme))):
+    print(('FOUND ' if Path(p).exists() else 'MISSING ') + p)
+    if not Path(p).exists(): missing.append(p)
+raise SystemExit(1 if missing else 0)
+PY
+```
+
+For any git state change:
+
+- Commit is not complete until `git log --oneline -1` is observed.
+- Push is not complete until `git status --short --branch` shows no ahead/behind and local/remote commit hashes match.
+
+## Lessons Learned
+
+A previous failed setup created `experiences/aidlc-codd-demo` as a submodule/fork of `awslabs/aidlc-workflows` and added only:
+
+- `DEMO_MANIFEST.md`
+- `HANDS_ON_LAB.md`
+- `demo-project/docs/DESIGN.md`
+- `demo-project/src/dance_manager.py`
+
+Physical inspection showed:
+
+- missing `codd`
+- missing `graphify`
+- missing `aidlc-docs/`
+- missing `codd.yaml`
+- missing `graphify-out/`
+- no CoDD frontmatter
+- no Graphify graph
+
+This must not be repeated. The correct approach is official installation and observed execution in a separate target lab.
