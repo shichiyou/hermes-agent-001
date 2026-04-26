@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
 ARG UV_VERSION=0.11.6
-ARG OLLAMA_VERSION=0.20.7
+ARG OLLAMA_VERSION=0.21.2
 ARG CLAUDE_CODE_VERSION=2.1.109
 
 ENV DEBIAN_FRONTEND=noninteractive
