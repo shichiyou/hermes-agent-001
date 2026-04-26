@@ -139,6 +139,26 @@ claude --model <ollama-model-tag>
 When using a local model, no prompt data leaves the container. This is the recommended mode for
 sensitive codebases that cannot use a paid organizational plan.
 
+This repository's default devcontainer configuration also uses `127.0.0.1:11434` for `OLLAMA_HOST`, so
+`.devcontainer/post-start.sh` can start and health-check the in-container Ollama service without any extra setup.
+
+**Using a host-side Ollama instance for host GPU access:**
+
+Keep this as an explicit override rather than changing the repository default. The repository includes
+[.devcontainer/devcontainer.host-ollama.json](../.devcontainer/devcontainer.host-ollama.json) as a host-Ollama
+variant that sets `OLLAMA_HOST` to `host.docker.internal:11434`.
+
+Recommended workflow:
+
+1. Copy `.devcontainer/devcontainer.host-ollama.json` over `.devcontainer/devcontainer.json`.
+2. Rebuild the devcontainer.
+3. Verify that `printf 'OLLAMA_HOST=%s\n' "${OLLAMA_HOST}"` prints `host.docker.internal:11434`.
+4. Verify that `curl -fsS http://${OLLAMA_HOST}/api/tags` returns JSON.
+
+When you want to return to the repository default, restore `.devcontainer/devcontainer.json` and rebuild again.
+Do not keep a host-only override as the committed default unless you also update the startup scripts, tests, and
+operational documentation to match.
+
 ## Update Strategy
 
 `update-tools.sh` intentionally mixes manifest pin refreshes, lockfile refreshes, and convenience updates.

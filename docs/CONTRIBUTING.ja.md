@@ -134,6 +134,11 @@ find .devcontainer -type f -name '*.sh' -exec test -x {} \; -print
 コンテナ開始後に Ollama が応答しない場合は、ログを調査してください：
 
 ```bash
+printf 'OLLAMA_HOST=%s\n' "${OLLAMA_HOST:-<unset>}"
 tail -n 20 ~/.local/state/ollama/post-start.log
 tail -n 20 ~/.local/state/ollama/server.log
 ```
+
+local モードの既定値では `OLLAMA_HOST` は `127.0.0.1:11434` であるべきです。もし
+`host.docker.internal:11434` のままなら、現在のシェルが古い環境変数を引き継いでいます。まず新しいターミナルを
+開くか、コンテナを再度リビルドしてから調査を続けてください。

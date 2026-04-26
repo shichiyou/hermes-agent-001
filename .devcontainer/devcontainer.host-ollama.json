@@ -8,7 +8,7 @@
     "LANGUAGE": "en_US:en",
     "LC_ALL": "en_US.UTF-8",
     "TZ": "Etc/UTC",
-    "OLLAMA_HOST": "127.0.0.1:11434",
+    "OLLAMA_HOST": "host.docker.internal:11434",
     "AI_LOG_RETENTION_DAYS": "30"
   },
   "features": {

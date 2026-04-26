@@ -139,6 +139,11 @@ find .devcontainer -type f -name '*.sh' -exec test -x {} \; -print
 If Ollama does not respond after container start, inspect the logs:
 
 ```bash
+printf 'OLLAMA_HOST=%s\n' "${OLLAMA_HOST:-<unset>}"
 tail -n 20 ~/.local/state/ollama/post-start.log
 tail -n 20 ~/.local/state/ollama/server.log
 ```
+
+For the default local mode, `OLLAMA_HOST` should be `127.0.0.1:11434`. If it still shows
+`host.docker.internal:11434`, the current shell is still carrying an older environment. Open a fresh terminal after
+rebuild or rebuild the container again before debugging further.

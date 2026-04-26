@@ -658,6 +658,12 @@ grep -c 'YOUR_.*_HERE' ~/.hermes/.env
 #### ステップ4: post-start.sh の実行結果検証
 
 ```bash
+# 4-0: 既定の Ollama 接続先確認
+printf 'OLLAMA_HOST=%s\n' "${OLLAMA_HOST:-<unset>}"
+# 期待結果: 127.0.0.1:11434
+# 注: host GPU 用に `.devcontainer/devcontainer.host-ollama.json` を使っている場合のみ
+#     host.docker.internal:11434 を期待する
+
 # 4-1: Ollamaサーバーの起動確認
 curl -sf http://127.0.0.1:11434/api/tags | python3 -c "import sys,json; print(json.load(sys.stdin).get('models',[]))" 2>/dev/null || echo "Ollama not responding"
 # 期待結果: モデル一覧がJSONで返ること

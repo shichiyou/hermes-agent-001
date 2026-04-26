@@ -14,6 +14,7 @@ setup() {
     export TEST_BIN_DIR="$TEST_TMPDIR/bin"
     export HOME="$TEST_HOME"
     export XDG_STATE_HOME="$TEST_HOME/.local"
+    unset OLLAMA_HOST
     export OLLAMA_STARTUP_RETRY_INTERVAL=0
     export FAKE_OLLAMA_READY_FILE="$TEST_TMPDIR/ollama-ready"
     export FAKE_OLLAMA_STARTED_FILE="$TEST_TMPDIR/ollama-started"

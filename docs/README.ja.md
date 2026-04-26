@@ -50,6 +50,16 @@ npm run test
 
 これらのコマンドは [.github/workflows/ci.yml](../.github/workflows/ci.yml) の smoke CI ワークフローと同一です。
 
+## Ollama モード
+
+既定の devcontainer 設定は、コンテナ内の Ollama を `127.0.0.1:11434` で使います。
+この値は `.devcontainer/post-start.sh`、シェルテスト、Hermes バックアップ設定と一致しています。
+
+ホスト PC 側の Ollama を使ってホスト GPU を使いたい場合は、既定値を壊さず明示的に切り替えてください。
+[.devcontainer/devcontainer.host-ollama.json](../.devcontainer/devcontainer.host-ollama.json) を代替設定として使い、
+これを `.devcontainer/devcontainer.json` にコピーしてからコンテナをリビルドします。local モードへ戻す場合は
+元の `.devcontainer/devcontainer.json` を復元して再度リビルドします。
+
 ## プロジェクト構造
 
 ```text

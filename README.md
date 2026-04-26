@@ -89,6 +89,16 @@ npm run test
 
 These commands match the smoke CI workflow in [.github/workflows/ci.yml](.github/workflows/ci.yml).
 
+## Ollama Modes
+
+The default devcontainer configuration uses the in-container Ollama instance at `127.0.0.1:11434`.
+This matches `.devcontainer/post-start.sh`, the shell tests, and the backup Hermes configuration.
+
+If you want to use a host-side Ollama instance for host GPU access, keep that as an explicit opt-in.
+Use [.devcontainer/devcontainer.host-ollama.json](.devcontainer/devcontainer.host-ollama.json) as the alternate
+configuration, copy it over `.devcontainer/devcontainer.json`, and then rebuild the container. To return to the
+default local mode, restore `.devcontainer/devcontainer.json` and rebuild again.
+
 ## Project Layout
 
 ```text
@@ -252,9 +262,14 @@ find .devcontainer -type f -name '*.sh' -exec test -x {} \; -print
 If Ollama does not respond after container start, inspect the logs:
 
 ```bash
+printf 'OLLAMA_HOST=%s\n' "${OLLAMA_HOST:-<unset>}"
 tail -n 20 ~/.local/state/ollama/post-start.log
 tail -n 20 ~/.local/state/ollama/server.log
 ```
+
+For the default local mode, `OLLAMA_HOST` should be `127.0.0.1:11434`. If an existing shell still shows
+`host.docker.internal:11434`, open a new terminal after rebuild or rebuild the container again so the updated
+devcontainer environment is applied consistently.
 
 If the shared Home state becomes inconsistent, remove the Docker volume on the host and reopen the container:
 
