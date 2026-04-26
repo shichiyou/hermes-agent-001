@@ -116,8 +116,19 @@ wait_for_ollama_startup() {
     RETRY_INTERVAL="$retry_interval" retry "$retries" ollama_api_ready
 }
 
+is_local_ollama_host() {
+    case "${OLLAMA_HOST}" in
+        "127.0.0.1:"*|"localhost:"*|"::1:"*|"")
+            return 0 ;;
+        *)
+            return 1 ;;
+    esac
+}
+
 if ollama_api_ready; then
-    log_info "Ollama server is already running."
+    log_info "Ollama server is already running at ${OLLAMA_HOST:-127.0.0.1:11434}."
+elif ! is_local_ollama_host; then
+    log_warn "OLLAMA_HOST is set to ${OLLAMA_HOST} (remote host). Skipping local server start. Ensure the remote Ollama is running."
 else
     log_info "Starting Ollama server..."
     nohup env OLLAMA_CONTEXT_LENGTH="$OLLAMA_CONTEXT_LENGTH" ollama serve >"$OLLAMA_LOG_FILE" 2>&1 &
