@@ -1,0 +1,14 @@
+Usage: codd init [OPTIONS]
+
+  Initialize CoDD in a project directory.
+
+Options:
+  --project-name TEXT  Name of the project
+  --language TEXT      Primary language (python/typescript/javascript/go —
+                       full support; java — symbols only)
+  --dest TEXT          Destination directory (default: current dir)
+  --requirements PATH  Import a requirements file (any format: .md, .txt,
+                       .doc). CoDD adds frontmatter automatically.
+  --config-dir TEXT    Name of the CoDD config directory (default: codd). Use
+                       .codd when codd/ is your source directory.
+  --help               Show this message and exit.

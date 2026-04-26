@@ -1,0 +1,12 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.3, pluggy-1.6.0 -- /workspaces/hermes-agent-001/experiences/aidlc-codd-graphify-lab/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /workspaces/hermes-agent-001/experiences/aidlc-codd-graphify-lab/sample-app
+configfile: pyproject.toml
+testpaths: tests
+collecting ... collected 2 items
+
+tests/test_taskflow.py::test_create_task_defaults_to_todo_and_can_list_by_status PASSED [ 50%]
+tests/test_taskflow.py::test_mark_task_done_moves_it_between_status_lists PASSED [100%]
+
+============================== 2 passed in 0.00s ===============================

@@ -1,0 +1,4 @@
+Re-extracting code files in sample-app (no LLM needed)...
+[graphify watch] Rebuilt: 23 nodes, 45 edges, 6 communities
+[graphify watch] graph.json, graph.html and GRAPH_REPORT.md updated in /workspaces/hermes-agent-001/experiences/aidlc-codd-graphify-lab/sample-app/graphify-out
+Code graph updated. For doc/paper/image changes run /graphify --update in your AI assistant.

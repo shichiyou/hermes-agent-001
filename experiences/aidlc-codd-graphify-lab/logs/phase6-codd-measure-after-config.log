@@ -1,0 +1,7 @@
+CoDD Project Metrics — Health Score: 95/100
+
+Graph:   7 nodes, 4 edges, 2 orphans, max depth 1
+         avg out-degree 0.57, connectivity 0.095
+Coverage: 0/9 source files tracked (0%), 1 design docs
+Quality: 1 docs validated (0 errors, 0 warnings)
+         0 files policy-checked (0 critical, 0 warnings), 0 rules

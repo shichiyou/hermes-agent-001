@@ -1,0 +1,258 @@
+1: # AI-DLC (AI-Driven Development Life Cycle)
+7: AI-DLC is an intelligent software development workflow that adapts to your needs, maintains quality standards, and keeps you in control of the process. For learning more about AI-DLC Methodology, read this [blog](https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/) and the [Method Definition Paper](https://prod.d13rzhkk8cj2z0.amplifyapp.com/) referred in it.
+9: ## Table of Contents
+12: - [Platform-Specific Setup](#platform-specific-setup)
+23: - [Experimental: AI-Assisted Setup (Release Download)](#experimental-ai-assisted-setup-release-download)
+29: ## Common
+31: 1. Download the latest release zip file named `ai-dlc-rules-v<release-number>.zip` from the [Releases page](../../releases/latest) to a folder **outside** your project directory (e.g., `~/Downloads`).
+32: 2. Extract the zip. It contains an `aidlc-rules/` folder with two subdirectories:
+33:    - `aws-aidlc-rules/` — the core AI-DLC workflow rules
+34:    - `aws-aidlc-rule-details/` — detailed rules conditionally referenced by the core rules
+35: 3. Follow the setup instructions for your coding agent and platform below.
+39: ## Platform-Specific Setup
+45: - [Claude Code](#claude-code)
+46: - [GitHub Copilot](#github-copilot)
+47: - [OpenAI Codex](#openai-codex)
+52: ### Kiro
+54: AI-DLC uses [Kiro Steering Files](https://kiro.dev/docs/cli/steering/) within your project workspace.  
+62: cp -R ~/Downloads/aidlc-rules/aws-aidlc-rules .kiro/steering/
+63: cp -R ~/Downloads/aidlc-rules/aws-aidlc-rule-details .kiro/
+70: Copy-Item -Recurse "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rules" ".kiro\steering\"
+71: Copy-Item -Recurse "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rule-details" ".kiro\"
+78: xcopy %USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rules .kiro\steering\aws-aidlc-rules\ /E /I
+79: xcopy %USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rule-details .kiro\aws-aidlc-rule-details\ /E /I
+88:     │     │      ├── aws-aidlc-rules/
+92: To verify the rules are loaded:
+94: #### Verify in Kiro IDE
+98: <img src="./assets/images/kiro-ide-aidlc-rules-loaded.png?raw=true" alt="AI-DLC Rules in Kiro IDE" width="700" height="450">
+100: We use Kiro IDE in Vibe mode to run the AI-DLC workflow. This ensures that AI-DLC workflow guides the development workflow in Kiro. At times, Kiro may nudge you to switch to spec mode. Select `No` to such prompts to stay in Vibe mode.
+104: #### Verify in Kiro CLI
+106: Run `kiro-cli`, then `/context show`, and confirm entries for `.kiro/steering/aws-aidlc-rules`.
+108: <img src="./assets/images/kiro-cli-aidlc-rules-loaded.png?raw=true" alt="AI-DLC Rules in Kiro CLI" width="700" height="660">
+112: ### Amazon Q Developer IDE Plugin/Extension
+114: AI-DLC uses [Amazon Q Rules](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/context-project-rules.html) within your project workspace.
+121: mkdir -p .amazonq/rules
+122: cp -R ~/Downloads/aidlc-rules/aws-aidlc-rules .amazonq/rules/
+123: cp -R ~/Downloads/aidlc-rules/aws-aidlc-rule-details .amazonq/
+129: New-Item -ItemType Directory -Force -Path ".amazonq\rules"
+130: Copy-Item -Recurse "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rules" ".amazonq\rules\"
+131: Copy-Item -Recurse "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rule-details" ".amazonq\"
+137: mkdir .amazonq\rules
+138: xcopy %USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rules .amazonq\rules\aws-aidlc-rules\ /E /I
+139: xcopy %USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rule-details .amazonq\aws-aidlc-rule-details\ /E /I
+147:     │     ├── rules/
+148:     │     │     ├── aws-aidlc-rules/
+152: To verify the rules are loaded:
+154: 1. In the Amazon Q Chat window, click the `Rules` button in the lower right corner.
+155: 2. Confirm you see entries for `.amazonq/rules/aws-aidlc-rules`.
+157: <img src="./assets/images/q-ide-aidlc-rules-loaded.png?raw=true" alt="AI-DLC Rules in Q Developer IDE plugin" width="700" height="400">
+161: ### Cursor IDE
+163: AI-DLC uses [Cursor Rules](https://cursor.com/docs/context/rules) to implement its intelligent workflow.
+167: #### Option 1: Project Rules (Recommended)
+172: mkdir -p .cursor/rules
+174: cat > .cursor/rules/ai-dlc-workflow.mdc << 'EOF'
+176: description: "AI-DLC (AI-Driven Development Life Cycle) adaptive workflow for software development"
+181: cat ~/Downloads/aidlc-rules/aws-aidlc-rules/core-workflow.md >> .cursor/rules/ai-dlc-workflow.mdc
+184: cp -R ~/Downloads/aidlc-rules/aws-aidlc-rule-details/* .aidlc-rule-details/
+190: New-Item -ItemType Directory -Force -Path ".cursor\rules"
+194: description: "AI-DLC (AI-Driven Development Life Cycle) adaptive workflow for software development"
+199: $frontmatter | Out-File -FilePath ".cursor\rules\ai-dlc-workflow.mdc" -Encoding utf8
+201: Get-Content "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" | Add-Content ".cursor\rules\ai-dlc-workflow.mdc"
+204: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rule-details\*" ".aidlc-rule-details\" -Recurse
+210: mkdir .cursor\rules
+214: echo description: "AI-DLC (AI-Driven Development Life Cycle) adaptive workflow for software development"
+218: ) > .cursor\rules\ai-dlc-workflow.mdc
+220: type "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" >> .cursor\rules\ai-dlc-workflow.mdc
+223: xcopy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rule-details" ".aidlc-rule-details\" /E /I
+226: #### Option 2: AGENTS.md (Simple Alternative)
+231: cp ~/Downloads/aidlc-rules/aws-aidlc-rules/core-workflow.md ./AGENTS.md
+233: cp -R ~/Downloads/aidlc-rules/aws-aidlc-rule-details/* .aidlc-rule-details/
+239: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".\AGENTS.md"
+241: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rule-details\*" ".aidlc-rule-details\" -Recurse
+247: copy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".\AGENTS.md"
+249: xcopy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rule-details" ".aidlc-rule-details\" /E /I
+252: **Verify Setup:**
+254: 1. Open **Cursor Settings → Rules, Commands**
+255: 2. Under **Project Rules**, you should see `ai-dlc-workflow` listed
+258: ![AI-DLC Rules in Cursor](./assets/images/cursor-ide-aidlc-rules-loaded.png?raw=true "AI-DLC Rules in Cursor")
+265: │   └── rules/
+266: │       └── ai-dlc-workflow.mdc
+277: ### Cline
+279: AI-DLC uses Cline Rules to implement its intelligent workflow.
+283: #### Option 1: .clinerules Directory (Recommended)
+288: mkdir -p .clinerules
+289: cp ~/Downloads/aidlc-rules/aws-aidlc-rules/core-workflow.md .clinerules/
+291: cp -R ~/Downloads/aidlc-rules/aws-aidlc-rule-details/* .aidlc-rule-details/
+297: New-Item -ItemType Directory -Force -Path ".clinerules"
+298: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".clinerules\"
+300: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rule-details\*" ".aidlc-rule-details\" -Recurse
+306: mkdir .clinerules
+307: copy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".clinerules\"
+309: xcopy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rule-details" ".aidlc-rule-details\" /E /I
+312: #### Option 2: AGENTS.md (Alternative)
+317: cp ~/Downloads/aidlc-rules/aws-aidlc-rules/core-workflow.md ./AGENTS.md
+319: cp -R ~/Downloads/aidlc-rules/aws-aidlc-rule-details/* .aidlc-rule-details/
+325: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".\AGENTS.md"
+327: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rule-details\*" ".aidlc-rule-details\" -Recurse
+333: copy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".\AGENTS.md"
+335: xcopy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rule-details" ".aidlc-rule-details\" /E /I
+338: **Verify Setup:**
+340: 1. In Cline's chat interface, look for the Rules popover under the chat input field
+344: ![AI-DLC Rules in Cline](./assets/images/cline-ide-aidlc-rules-loaded.png?raw=true "AI-DLC Rules in Cline")
+350: ├── .clinerules/
+362: ### Claude Code
+364: AI-DLC uses Claude Code's project memory file (`CLAUDE.md`) to implement its intelligent workflow.
+368: #### Option 1: Project Root (Recommended)
+373: cp ~/Downloads/aidlc-rules/aws-aidlc-rules/core-workflow.md ./CLAUDE.md
+375: cp -R ~/Downloads/aidlc-rules/aws-aidlc-rule-details/* .aidlc-rule-details/
+381: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".\CLAUDE.md"
+383: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rule-details\*" ".aidlc-rule-details\" -Recurse
+389: copy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".\CLAUDE.md"
+391: xcopy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rule-details" ".aidlc-rule-details\" /E /I
+394: #### Option 2: .claude Directory
+399: mkdir -p .claude
+400: cp ~/Downloads/aidlc-rules/aws-aidlc-rules/core-workflow.md .claude/CLAUDE.md
+402: cp -R ~/Downloads/aidlc-rules/aws-aidlc-rule-details/* .aidlc-rule-details/
+408: New-Item -ItemType Directory -Force -Path ".claude"
+409: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".claude\CLAUDE.md"
+411: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rule-details\*" ".aidlc-rule-details\" -Recurse
+417: mkdir .claude
+418: copy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".claude\CLAUDE.md"
+420: xcopy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rule-details" ".aidlc-rule-details\" /E /I
+423: **Verify Setup:**
+425: 1. Start Claude Code in your project directory (CLI: `claude` or VS Code extension)
+427: 3. Ask Claude: "What instructions are currently active in this project?"
+433: ├── CLAUDE.md
+444: ### GitHub Copilot
+446: AI-DLC uses [GitHub Copilot custom instructions](https://code.visualstudio.com/docs/copilot/customization/custom-instructions) to implement its intelligent workflow. The `.github/copilot-instructions.md` file is automatically detected and applied to all chat requests in the workspace.
+454: cp ~/Downloads/aidlc-rules/aws-aidlc-rules/core-workflow.md .github/copilot-instructions.md
+456: cp -R ~/Downloads/aidlc-rules/aws-aidlc-rule-details/* .aidlc-rule-details/
+463: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".github\copilot-instructions.md"
+465: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rule-details\*" ".aidlc-rule-details\" -Recurse
+472: copy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".github\copilot-instructions.md"
+474: xcopy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rule-details" ".aidlc-rule-details\" /E /I
+477: **Verify Setup:**
+480: 2. Open the Copilot Chat panel (Cmd/Ctrl+Shift+I)
+481: 3. Select **Configure Chat** (gear icon) > **Chat Instructions** and verify that `copilot-instructions` is listed
+489: │   └── copilot-instructions.md
+500: ### OpenAI Codex
+502: AI-DLC supports OpenAI Codex as a supported coding agent, using the [Codex AGENTS.md](https://developers.openai.com/codex/guides/agents-md) convention to deliver its intelligent workflow. Codex automatically discovers and loads `AGENTS.md` from your project root when you start a session.
+509: cp ~/Downloads/aidlc-rules/aws-aidlc-rules/core-workflow.md ./AGENTS.md
+511: cp -R ~/Downloads/aidlc-rules/aws-aidlc-rule-details/* .aidlc-rule-details/
+517: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".\AGENTS.md"
+519: Copy-Item "$env:USERPROFILE\Downloads\aidlc-rules\aws-aidlc-rule-details\*" ".aidlc-rule-details\" -Recurse
+525: copy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rules\core-workflow.md" ".\AGENTS.md"
+527: xcopy "%USERPROFILE%\Downloads\aidlc-rules\aws-aidlc-rule-details" ".aidlc-rule-details\" /E /I
+530: **Verify Setup:**
+532: 1. Start a Codex session in your project directory
+533: 2. Ask Codex: For existing project - "Using AIDLC analyze the project?" or For new project "Using Aidlc what workflow do you see" .
+534: 3. Codex should describe the AI-DLC three-phase workflow (Inception → Construction → Operations)
+537: > The `AGENTS.md` file is designed to fit within Codex's instruction budget under default settings. If you add substantial project-specific content and Codex reports that the project documentation exceeds its instruction limit, you can increase the limit in your Codex configuration (for example, by adjusting `project_doc_max_bytes` in your `config.toml` file):
+558: ### Other Agents
+560: AI-DLC works with any coding agent that supports project-level rules or steering files. The general approach:
+562: 1. Place `aws-aidlc-rules/` wherever your agent reads project rules from (consult your agent's documentation).
+563: 2. Place `aws-aidlc-rule-details/` at a sibling level so the rules can reference it.
+565: If your agent has no convention for rules files, place both folders at your project root and point the agent to `aws-aidlc-rules/` as its rules directory.
+569: ## Usage
+571: 1. Start any software development project by stating your intent starting with the phrase **"Using AI-DLC, ..."** in the chat
+572: 2. AI-DLC workflow automatically activates and guides you from there
+573: 3. Answer structured questions that AI-DLC asks you
+581: ## Three-Phase Adaptive Workflow
+583: AI-DLC follows a structured three-phase approach that adapts to your project's complexity:
+585: ### 🔵 INCEPTION PHASE
+594: ### 🟢 CONSTRUCTION PHASE
+603: ### 🟡 OPERATIONS PHASE
+608: - Monitoring and observability setup
+613: ## Key Features
+622: | **Extensible**            | Layer custom rules e.g. security, compliance, and organization-specific rules on top of the core workflow |
+626: ## Extensions
+628: AI-DLC supports an extension system that lets you layer additional rules on top of the core workflow. Extensions are markdown files organized under `aws-aidlc-rule-details/extensions/` and grouped by category (e.g., `security/`, `testing/`).
+630: ### How Extensions Work
+634: - A **rules file** (e.g., `security-baseline.md`) containing the extension's rules.
+637: At workflow start, AI-DLC scans the `extensions/` directory and loads only `*.opt-in.md` files. During Requirements Analysis, it presents each opt-in prompt to the user. When the user opts in, the corresponding rules file is loaded (derived by naming convention: strip `.opt-in.md`, append `.md`). When the user opts out, the rules file is never loaded. Extensions without a matching `*.opt-in.md` file are always enforced.
+639: Once enabled, extension rules are blocking constraints — at each stage, the model verifies compliance before allowing the stage to proceed.
+641: ### Built-in Extensions
+650:     │       ├── security-baseline.md          # Baseline security rules
+654:             ├── property-based-testing.md          # Property-based testing rules
+659: > The security extension rules are provided as a directional reference for building effective security rules within AI-DLC workflows. Each organization should build, customize, and thoroughly test their own security rules before deploying in production workflows.
+661: ### Adding Your Own Extensions
+666: 2. Add a **rules file** (e.g., `compliance.md`). Follow the same structure as `security-baseline.md`:
+671: 4. Rules are blocking by default — if verification criteria are not met, the stage cannot proceed until the finding is resolved.
+675: ## Tenets
+681: - **Methodology first**. AI-DLC is fundamentally a methodology, not a tool. Users shouldn't need to install anything to get started. That said, we're open to convenience tooling (scripts, CLIs) down the road if it helps users adopt or extend the methodology.
+683: - **Reproducible**. Rules should be clear enough that different models produce similar outcomes. We know models behave differently, but the methodology should minimize variance through explicit guidance.
+691: ## Prerequisites
+693: Have one of our supported platforms/tools for Assisted AI Coding installed:
+695: | Platform                      | Installation Link                                                                                                                                               |
+697: | Kiro                          | [Install](https://kiro.dev/)                                                                                                                                    |
+698: | Kiro CLI                      | [Install](https://kiro.dev/cli/)                                                                                                                                |
+699: | Amazon Q Developer IDE Plugin | [Install](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/q-in-IDE.html)                                                                               |
+700: | Cursor IDE                    | [Install](https://cursor.com/)                                                                                                                                  |
+701: | Cline VS Code Extension       | [Install](https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev)                                                                           |
+702: | Claude Code CLI               | [Install](https://github.com/anthropics/claude-code)                                                                                                            |
+703: | GitHub Copilot                | [Install](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) + [Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) |
+707: ## Troubleshooting
+709: ### General Issues
+713: | Rules not loading            | Check file exists in the correct location for your platform |
+715: | Rules not applied in session | Start a new chat session after file changes                 |
+718: ### Platform-Specific Issues
+720: #### Kiro
+722: - Use `/context show` in Kiro CLI to verify rules are loaded
+726: #### Amazon Q Developer
+728: - Check `.amazonq/rules/` directory structure
+729: - Verify rules are listed in the Amazon Q Chat Rules panel
+732: #### Cursor
+735: - Check **Cursor Settings → Rules** to ensure the rule is enabled
+736: - If rule is too large (>500 lines), split into multiple focused rules
+738: #### Cline
+740: - Check the Rules popover under the chat input field
+743: #### Claude Code
+748: #### GitHub Copilot
+752: - Check that `.github/copilot-instructions.md` exists in your workspace root
+754: ### File Path Issues on Windows
+761: ## Version Control Recommendations
+766: # These should be version controlled
+767: CLAUDE.md
+769: .amazonq/rules/
+773: .cursor/rules/
+774: .clinerules/
+775: .github/copilot-instructions.md
+782: # Local-only settings
+783: .claude/settings.local.json
+788: ## Generated aidlc-docs/ Reference
+790: For the complete reference of all documentation artifacts generated by the AI-DLC workflow, see [docs/GENERATED_DOCS_REFERENCE.md](docs/GENERATED_DOCS_REFERENCE.md).
+794: ## Experimental: AI-Assisted Setup (Release Download)
+796: > Instead of manually copying files, let your AI agent handle the setup. This is an experimental workflow — currently validated with Kiro, Claude code, Cursor, Antigravity.
+798: > **Note:** This approach requires your agent to have shell access (e.g., Kiro, Claude Code, Cline). For agents without shell access, follow the [Common](#common) setup above.
+803: Set up AI-DLC in this project by doing the following:
+805: 1. Download the latest AI-DLC release:
+806:    - Use the GitHub API to find the latest release asset URL:
+807:      curl -sL https://api.github.com/repos/awslabs/aidlc-workflows/releases/latest \
+811:    - Download the zip from that URL to /tmp/aidlc-rules.zip
+812:    - Extract it: unzip -o /tmp/aidlc-rules.zip -d /tmp/aidlc-release
+813:    - Copy the aidlc-rules/ folder from the extracted contents into .aidlc at the project root
+814:    - Clean up: rm -rf /tmp/aidlc-rules.zip /tmp/aidlc-release
+816: 2. Create the appropriate rules/steering file for your IDE using the options below.
+819:    - Kiro IDE or Kiro CLI     → create `.kiro/steering/ai-dlc.md`
+820:    - Amazon Q Developer       → create `.amazonq/rules/ai-dlc.md`
+821:    - Antigravity              → create `.agent/rules/ai-dlc.md`
+822:    - Cursor                   → create `.cursor/rules/ai-dlc.mdc` with frontmatter:
+824:                                   description: "AI-DLC workflow"
+827:    - Cline                    → create `.clinerules/ai-dlc.md`
+828:    - Claude Code              → create `CLAUDE.md`
+829:    - GitHub Copilot           → create `.github/copilot-instructions.md`
+833:    When the user invokes AI-DLC, read and follow
+834:    `.aidlc/aidlc-rules/aws-aidlc-rules/core-workflow.md` to start the workflow.
+841: The agent will download the latest release, create the correct config file for your IDE, and gitignore the `.aidlc` directory automatically.
+843: **Updating AI-DLC** — Re-run the prompt above. The agent will download the latest release and overwrite the existing `.aidlc/` folder.
+847: ## Additional Resources
+852: | AI-DLC Method Definition Paper                      | [Paper](https://prod.d13rzhkk8cj2z0.amplifyapp.com/)                                                                          |
+853: | AI-DLC Methodology Blog                             | [AWS Blog](https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/)                                             |
+854: | AI-DLC Open-source Launch Blog                      | [AWS Blog](https://aws.amazon.com/blogs/devops/open-sourcing-adaptive-workflows-for-ai-driven-development-life-cycle-ai-dlc/) |
+855: | AI-DLC Example Walkthrough Blog                     | [AWS Blog](https://aws.amazon.com/blogs/devops/building-with-ai-dlc-using-amazon-q-developer/)                                |
+858: | Cursor Rules Documentation                          | [Docs](https://cursor.com/docs/context/rules)                                                                                 |
+859: | Claude Code Documentation                           | [GitHub](https://github.com/anthropics/claude-code)                                                                           |
+860: | GitHub Copilot Documentation                        | [Docs](https://docs.github.com/en/copilot)                                                                                    |
+861: | Working with AI-DLC (interaction patterns and tips) | [docs/WORKING-WITH-AIDLC.md](docs/WORKING-WITH-AIDLC.md)                                                                      |
+867: ## Contributing
+871: ## License

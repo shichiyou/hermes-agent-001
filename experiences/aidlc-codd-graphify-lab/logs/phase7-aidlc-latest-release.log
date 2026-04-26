@@ -1,0 +1,11 @@
+tag_name= v0.1.8
+name= AI-DLC Workflow v0.1.8
+published_at= 2026-04-20T21:03:02Z
+zipball_url= https://api.github.com/repos/awslabs/aidlc-workflows/zipball/v0.1.8
+tarball_url= https://api.github.com/repos/awslabs/aidlc-workflows/tarball/v0.1.8
+assets=
+- ai-dlc-rules-v0.1.8.zip https://github.com/awslabs/aidlc-workflows/releases/download/v0.1.8/ai-dlc-rules-v0.1.8.zip
+- codebuild-project.zip https://github.com/awslabs/aidlc-workflows/releases/download/v0.1.8/codebuild-project.zip
+- evaluation.zip https://github.com/awslabs/aidlc-workflows/releases/download/v0.1.8/evaluation.zip
+- report-v0.1.8.zip https://github.com/awslabs/aidlc-workflows/releases/download/v0.1.8/report-v0.1.8.zip
+- trend.zip https://github.com/awslabs/aidlc-workflows/releases/download/v0.1.8/trend.zip
