@@ -1,7 +1,7 @@
 ---
 name: empirical-prompt-tuning
 description: Hermes Agent 版の実証的プロンプト改善プロトコル。skill / task prompt / AGENTS.md 節 / Wiki手順 / コード生成指示を、delegate_task で起動した白紙の subagent に実行させ、成果物チェック・実行者自己申告・物理的証拠から反復改善する。プロンプトや skill を新規作成・大幅改訂した直後、またはエージェント挙動の失敗原因を指示側の曖昧さとして検証したいときに使う。
-version: 1.0.0
+version: 1.1.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -306,7 +306,7 @@ This pattern still counts as empirical validation because:
 
 **Do NOT** fall back to Structural Review Mode solely because of this constraint. Parent-orchestrated execution preserves empirical validity.
 
-**Pitfall — Terminal masking in subagent reports:** When subagents read files containing passwords or long strings, `read_file` / `cat` may mask values as `***` or truncate with `...`. This can cause spec reviewers to falsely report bugs. Always verify with `hexdump -C` or `python3 -c "open(path).read()"` when reviewing files that contain credentials, tokens, or long string literals.
+**Pitfall — Terminal masking in subagent reports:** When subagents read files containing passwords or long strings, `read_file` / `cat` may mask values as `***` or truncate with `...`. Spec reviewers are the most vulnerable: they read implementation files to verify correctness and may falsely report a bug (FAIL) when credentials are masked. Always verify with `hexdump -C` or `python3 -c "open(path).read()"` when reviewing files that contain credentials, tokens, or long string literals. When invoking spec reviewers via delegation, explicitly instruct them to use hexdump/Python repr for credential fields.
 
 ## Red flags
 
@@ -347,6 +347,47 @@ Actual call pattern:
 3. Parent patches target with `skill_manage` or `patch`.
 4. Parent verifies with `skill_view`, `read_file`, `git diff`, or rerun scenarios.
 
+## Evaluation artifact directory structure
+
+When running a multi-iteration evaluation, keep results organized:
+
+```
+docs/empirical-prompt-tuning-evaluation/
+├── README.md                          # Integrated plan (target, scenarios, steps)
+├── scenarios/                         # Scenario definitions (subagent input context)
+│   ├── scenario-A.md                  # Median realistic case
+│   ├── scenario-B.md                  # Edge case 1
+│   ├── scenario-C.md                  # Edge case 2
+│   └── scenario-D-holdout.md          # Hold-out scenario (not used during tuning)
+├── templates/
+│   └── invocation-template.md         # Subagent invocation contract template
+├── results/
+│   ├── iter-01/                       # Iteration 1 (baseline)
+│   │   ├── static-check.md            # Step 0 findings
+│   │   ├── parent-evaluation.md       # Step 3/4 parent-side evaluation
+│   │   └── patch-design.md            # Step 4 patch design
+│   ├── iter-02/                       # Iteration 2 (post-patch)
+│   │   └── parent-evaluation.md
+│   └── final-report.md                # Step 7 final report
+├── artifacts/                         # Physical evidence (subagent outputs, test logs)
+│   ├── iter-01/
+│   └── iter-02/
+└── failure-pattern-ledger.md          # FP ledger (updated per iteration)
+```
+
+Commit each iteration's results to git before proceeding to the next.
+
+## Scenario design dimensions
+
+When designing edge cases, cover at least one of these dimensions (in addition to the median case):
+
+| Dimension | What it probes | Example scenario |
+|---|---|---|
+| Red flag trigger | Does the skill's "Never Do" list get violated? | Two tasks touching the same file (tests parallel-dispatch avoidance) |
+| Ambiguous specification | Does the skill handle unclear requirements? | Config value is `"???"` — neither on/off/missing (tests assumption declaration) |
+| Review loop | Does the fix→re-review loop work? | First implementation intentionally incomplete (tests retry cycle) |
+| Nesting constraint | Can the skill's subagent patterns execute under leaf constraints? | Skill says "dispatch a reviewer subagent" but leaf cannot delegate |
+
 ## Completion checklist
 
 Before claiming the target instruction is tuned:
@@ -362,6 +403,7 @@ Before claiming the target instruction is tuned:
 - [ ] Patch target mapped to a failed requirement or General Fix Rule before editing.
 - [ ] Patch applied with file/skill tools and verified by physical evidence.
 - [ ] Convergence or stop condition explicitly stated.
+- [ ] Hold-out scenario verified (accuracy drop < 15pt vs tuned scenarios, no overfitting).
 - [ ] Remaining risk, if any, reported without hiding it.
 
 ## Related skills
