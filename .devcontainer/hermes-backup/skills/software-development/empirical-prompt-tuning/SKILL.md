@@ -221,6 +221,10 @@ Stop only when one of these conditions is met:
 
 At convergence, add one hold-out scenario not used during tuning. If its accuracy drops by 15 points or more compared with recent tuned scenarios, treat it as overfitting and resume scenario design.
 
+**Hold-out scenario design:** Hold-out scenarios should probe a dimension *not covered* by the tuning scenarios. Example: if tuning scenarios tested ordering and ambiguity, the holdout should test retry loops or Red-flag adherence. This tests whether the skill generalizes beyond what was specifically patched for.
+
+**Convergence depth:** For high-importance skills (affecting production workflows, security, or multiple users), require 3 consecutive clean iterations instead of 2. "Clean" means zero new unclear points, zero `[critical]` failures, and accuracy improvement ≤ 3 points.
+
 ## Structural Review Mode
 
 Use this mode only when execution is impossible or too costly. It is not empirical validation.
@@ -238,6 +242,27 @@ Use Structural Review Mode for:
 - Reviewing a skill before any realistic execution environment exists.
 
 Never count Structural Review Mode as a clean empirical iteration.
+
+## Autonomous evaluation mode
+
+In addition to parent-orchestrated execution (where the parent controls subagent dispatch), you can evaluate a skill by giving the full SKILL.md directly to a single `delegate_task` subagent and letting it execute autonomously.
+
+**When to use autonomous evaluation:**
+- After parent-orchestrated evaluation has converged — to verify that the skill's instructions are self-contained enough for a standalone agent to follow without orchestration.
+- To test whether patches translate into actual behavioral change when the skill reader has no parent guidance.
+
+**How to run:**
+```text
+You are a blank-slate executor. Read the full skill at <path>. Follow its entire process autonomously — no parent agent will orchestrate you. You decide the order, do reviews yourself, and verify your own work.
+
+<Scenario and requirements checklist as usual>
+```
+
+**What it measures:** Whether the skill's written instructions are sufficient for an agent to self-govern — not just whether a parent can enforce compliance by controlling dispatch.
+
+**Limitation:** Autonomous evaluation does not measure the parent-orchestrated workflow (spec review → quality review → re-review loop) because a leaf subagent cannot spawn sub-subagents. Treat autonomous results as a complement to parent-orchestrated results, not a replacement.
+
+**Interpretation:** If parent-orchestrated evaluation shows 100% accuracy but autonomous evaluation shows lower accuracy, the skill's instructions may be clear enough for a parent to follow but not self-contained enough for a standalone agent. If both show 100%, the skill's instructions carry sufficient context for both orchestration and self-governance.
 
 ## Variant exploration
 
