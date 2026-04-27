@@ -326,3 +326,82 @@ Physical inspection showed:
 - no Graphify graph
 
 This must not be repeated. The correct approach is official installation and observed execution in a separate target lab.
+
+When converting an existing evidence repository into a hands-on lab for an article, preserve the existing execution-evidence README and add a separate `HANDS_ON_LAB.md` rather than rewriting the evidence record. The hands-on document should map the article's conceptual layers to physical files, then provide step-by-step exercises with commands, expected observations, and cleanup steps. For the AI-DLC × CoDD × Graphify article, useful lab sections were:
+
+1. Verify parent/submodule Git state.
+2. Map AI-DLC, CoDD, and Graphify layers to files.
+3. Read CoDD frontmatter.
+4. Run `codd validate`, `codd scan`, and `codd measure`.
+5. Run sample-app tests.
+6. Run `graphify update sample-app` and verify `graphify-out/` artifacts.
+7. Query/explain with Graphify.
+8. Run a Three-Way Coherence Closure cycle: `pytest` → `codd validate`/`codd scan` → `graphify update sample-app`.
+9. Deliberately create a small documentation/code mismatch and then revert it.
+
+Do not assume a previously generated `.venv` still exists just because logs reference it. Before claiming the lab is runnable, execute the documented setup path (`python3 -m venv .venv`, activate, `pip install codd-dev pytest graphifyy`) and run the completion checklist in the current shell.
+
+When writing or walking through `HANDS_ON_LAB.md`, make the lab root the default execution context, e.g. `/workspaces/hermes-agent-001/experiences/aidlc-codd-graphify-lab`. Do not write ordinary lab steps relative to the parent repository such as `cd experiences/aidlc-codd-graphify-lab` or `git -C experiences/...` inside a document that is meant to be read from inside the submodule. Parent-repository commands (`git submodule status --recursive`) should be clearly marked as optional/supplemental checks and followed by `cd <lab-root>` to return to the lab context.
+
+When guiding the user through the lab interactively, run each lab step and explain the observed output before moving on. Track progress with todos. For destructive or intentional-mismatch exercises, create the mismatch, run the checks, then revert the mismatch in the same turn and report the cleanup output.
+
+Running `graphify update sample-app` during verification or guided lab execution may rewrite tracked generated artifacts such as `sample-app/graphify-out/GRAPH_REPORT.md` and `sample-app/graphify-out/graph.json` even when source code did not change. Inspect the diff. If those generated changes are outside the requested scope, revert only those files and keep the surgical documentation changes. If the task is an interactive lab run, leave the generated diff visible long enough to teach the lesson, then explicitly ask or recommend whether to revert it before final cleanup.
+
+When the user asks to document and preserve lessons from the lab, prefer adding a dedicated process document under the lab repository rather than only answering in chat. A reusable pattern is `docs/process/v-model-development-process.md`, linked from `README.md`, covering:
+
+- AI-DLC / CoDD / Graphify role separation.
+- V-model phase table.
+- deterministic quality gates.
+- traceability and coverage table formats.
+- minimal CI gate commands.
+- which Graphify outputs are review evidence versus strict pass/fail criteria.
+
+When the discussion turns from "what process should exist" to "how an AI agent should operate the process," add a separate operating-model document rather than overloading the V-model process overview. A reusable pattern is `docs/process/ai-agent-v-model-operating-model.md`, linked from `README.md`, covering:
+
+- ISO/IEC/IEEE 12207, 15288, 29148, ISO/IEC 25010, ISO 9001, IEEE V&V/configuration-management concepts as best-practice alignment, explicitly not as an ISO certification claim.
+- AI-DLC / CoDD / Graphify / tests / human decision responsibility separation.
+- V-model phases with inputs, outputs, completion conditions, and human decision points.
+- conditions where the AI agent may proceed autonomously versus must stop and ask the human.
+- structured question/approval templates with options, recommendation, rationale, and `[Answer]` tag.
+- quality gates, CoDD frontmatter standards, coverage thresholds, Graphify usage rules, deviation management, audit logs, CI/CD gates, change management, and continuous improvement.
+- a prioritized next-work table: individual requirement IDs → detailed design docs → `source_files` → `test_files` → traceability table → coverage scripts → deviation templates → CI gates.
+
+Because CoDD scans Markdown under configured `doc_dirs`, any new Markdown placed under `docs/` must include valid CoDD frontmatter before final verification. Match `node_id` prefixes to CoDD naming rules; for a design/process document use a valid prefix such as `design:v-model-development-process` or `design:ai-agent-v-model-operating-model`, not an arbitrary prefix such as `process:...`. If the new document `depends_on` an existing requirement or process document, add the reciprocal `depended_by` entry to the referenced document to eliminate CoDD reciprocal-reference warnings. Verify with `codd validate` and `codd scan` before committing, and run the sample app tests if the repository uses them as the standard regression signal.
+
+For submodule-based labs, preservation has two commits: first commit and push inside the lab submodule, then commit and push the parent repository's submodule pointer. Final evidence must include: submodule local/remote hashes match, parent local/remote hashes match, and `git submodule status --recursive` shows the parent pointing at the new submodule commit.
+
+When implementing AI-agent drift-control decisions in the lab, record decisions in both the lab docs and the wiki. A reusable decision set is:
+
+- CoDD: make the primary `sample-app/src/**/*.py` traceability check the initial hard gate (expect `5/5` / 100%), while leaving `codd measure` whole-project coverage such as `5/9` visible as an advisory improvement metric. Do not hide the broader number.
+- promptfoo: avoid making promptfoo a required PR gate until real-agent cost, stability, and false-positive rates are measured. Use it as a manual or human-approval advisory gate first.
+- AI observability: prefer Langfuse as the first PoC target when self-hosting, log control, secret masking, and Raw Output correlation are priorities; keep AgentOps as a fallback if CLI-agent integration or log control fails.
+
+For promptfoo local/advisory evaluations, a `file://` JavaScript custom provider must export a constructor/class compatible with current promptfoo versions. Exporting a plain object with `callApi` can fail with `TypeError: ... is not a constructor`. Use a class like:
+
+```js
+class LocalProvider {
+  id() { return 'local-drift-control-baseline'; }
+  async callApi(prompt) { return { output: '...' }; }
+}
+module.exports = LocalProvider;
+```
+
+When recording the lab state in the wiki, create a concept page summarizing the physical repository commit hashes, adopted decisions, implementation files, verification Raw Output, CI/manual-gate split, and residual risks. Then update `index.md`, the relevant AI-DLC entity page, and `log.md`; commit and push the wiki submodule first, then update and push the parent repository's wiki submodule pointer.
+
+When adopting unresolved drift-control decisions in this AI-DLC × CoDD × Graphify lab, use this reusable implementation pattern:
+
+- CoDD measurement policy: keep `codd measure` raw output visible even if it reports broad coverage such as `5/9`, but add a dedicated script for the actual initial gate target (for example `sample-app/src/**/*.py` must be `5/5` / 100%). Report both values: the broad CoDD value as an improvement indicator, and the dedicated check as the stopping gate.
+- promptfoo policy: do not immediately make LLM-based promptfoo evaluation a PR-required gate while cost, stability, and false positives are unknown. Add it as manual or human-approval-before gate first, e.g. GitHub Actions `workflow_dispatch` job, then decide on required status after observing stability.
+- promptfoo local baseline: for no-cost deterministic CI/manual evaluation, a `file://` provider can return expected safe behavior. Current promptfoo expects the provider module to export a constructor/class, not a plain object. Pattern:
+
+```javascript
+class LocalProvider {
+  id() { return 'local-drift-control-baseline'; }
+  async callApi(prompt) { return { output: buildResponse(prompt) }; }
+}
+module.exports = LocalProvider;
+```
+
+A plain `module.exports = { id: ..., callApi: ... }` can fail with `TypeError: (intermediate value) is not a constructor`.
+- Langfuse / AgentOps decision: prefer Langfuse as first PoC when self-hosting, log control, secret masking, and Raw Output traceability are the main concerns; keep AgentOps as a fallback if CLI-agent integration or log control fails. Add a readiness script that does not send network data and checks `langfuse` package availability plus `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, and `LANGFUSE_HOST`, masking secrets in output.
+- Verification bundle for these changes should include pytest, `codd validate`, `codd scan`, `codd measure`, the dedicated traceability check, Graphify coverage check, promptfoo advisory run, Langfuse readiness output, and final git/submodule local-vs-remote hash checks.

@@ -48,3 +48,23 @@ Before stating a task is "complete," verify:
 - **The "Execution = Success" Fallacy**: Thinking that because a command exited with 0, the desired outcome was achieved.
 - **Directory Tunnel Vision**: Only checking `/workspaces/project-a` while `/workspaces/project-b` contains the actual target.
 - **Deduplication Trust**: Relying on `dedup: true` from `read_file` without occasionally performing a fresh read to ensure the file hasn't been altered externally.
+- **Moment-in-Time Git Assumption**: Treating an earlier `git status` snapshot as if it were still true later. Git working tree state is time-sensitive; if a user questions your report, re-run the inspection and report only the current observed state.
+
+## Git Working Tree Revalidation
+When discussing "uncommitted files" or whether a specific file is dirty/staged/untracked, do not rely on a single prior `git status`.
+
+### Required cross-check
+Run a compact set of commands and report all of them together:
+
+```bash
+git status --short --branch
+git diff --name-status
+git diff --cached --name-status
+git ls-files --others --exclude-standard
+git diff -- <specific-path>   # when a particular file is being disputed
+```
+
+### Reporting rule
+- Describe these results as the **current** state, not as proof of what existed earlier.
+- If an earlier observation no longer reproduces, say exactly that: the earlier output was seen then, but is not present in the current physical evidence.
+- Before committing, verify staged scope again with `git diff --cached --name-status` so you do not narrate stale file membership.
