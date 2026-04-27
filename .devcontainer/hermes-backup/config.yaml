@@ -110,9 +110,9 @@ tool_output:
   max_line_length: 2000
 compression:
   enabled: true
-  threshold: 0.5
+  threshold: 0.8
   target_ratio: 0.2
-  protect_last_n: 20
+  protect_last_n: 12
 prompt_caching:
   cache_ttl: 5m
 bedrock:
@@ -197,9 +197,9 @@ display:
   personality: kawaii
   resume_display: full
   busy_input_mode: interrupt
-  bell_on_complete: false
+  bell_on_complete: true
   show_reasoning: false
-  streaming: true
+  streaming: false
   final_response_markdown: strip
   inline_diffs: true
   show_cost: false
@@ -207,13 +207,13 @@ display:
   user_message_preview:
     first_lines: 2
     last_lines: 2
-  interim_assistant_messages: true
+  interim_assistant_messages: false
   tool_progress_command: false
   tool_progress_overrides: {}
   tool_preview_length: 0
   platforms: {}
   background_process_notifications: all
-  tool_progress: all
+  tool_progress: new
 dashboard:
   theme: cyberpunk
 privacy:
@@ -352,8 +352,8 @@ cron:
   max_parallel_jobs: null
 code_execution:
   mode: project
-  max_tool_calls: 50
-  timeout: 300
+  max_tool_calls: 25
+  timeout: 180
 logging:
   level: INFO
   max_size_mb: 5
