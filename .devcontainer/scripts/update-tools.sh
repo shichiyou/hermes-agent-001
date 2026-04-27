@@ -196,6 +196,7 @@ DEFAULT_TOOL_NAMES=(
     claude-code
     codex
     copilot
+    opencode
     playwright
 )
 
@@ -492,6 +493,20 @@ update_copilot() {
     fi
 }
 
+update_opencode() {
+    echo -e "${CYAN}[opencode]${NC} Updating OpenCode CLI..."
+    local current_version
+    local latest_version
+    current_version="$(opencode --version 2>/dev/null || true)"
+    latest_version="$(npm_package_latest_version opencode-ai || true)"
+
+    if command -v opencode &>/dev/null && [ -n "$latest_version" ] && skip_if_same_version "$current_version" "$latest_version"; then
+        return 0
+    fi
+
+    npm_config_ignore_scripts=false npm install -g opencode-ai
+    echo -e "${GREEN}  $(opencode --version 2>/dev/null || echo 'installed')${NC}"
+}
 
 update_playwright() {
     echo -e "${CYAN}[playwright]${NC} Updating Playwright and Chromium..."
@@ -597,6 +612,7 @@ update_tool() {
         claude-code)  update_claude_code ;;
         codex)        update_codex ;;
         copilot)      update_copilot ;;
+        opencode)     update_opencode ;;
         playwright)   update_playwright ;;
         *)
             echo -e "${RED}Unknown tool: ${tool}${NC}"

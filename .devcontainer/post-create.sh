@@ -126,7 +126,7 @@ fi
 # Global AI CLIs
 # ------------------------------------------------------------------
 echo ">>> Installing AI CLI tools..."
-if ! retry 3 env npm_config_ignore_scripts=false npm install -g @openai/codex@0.121.0 @github/copilot@1.0.28; then
+if ! retry 3 env npm_config_ignore_scripts=false npm install -g @openai/codex@0.121.0 @github/copilot@1.0.28 opencode-ai@1.14.28; then
     echo "WARNING: Some AI CLI npm packages failed to install"
 fi
 
@@ -166,6 +166,7 @@ if [ -n "$copilot_version_value" ]; then
 else
     echo "GitHub Copilot:  N/A"
 fi
+echo "OpenCode:        $(opencode --version 2>/dev/null || echo 'N/A')"
 
 echo ""
 echo "=== Post-create setup complete ==="
