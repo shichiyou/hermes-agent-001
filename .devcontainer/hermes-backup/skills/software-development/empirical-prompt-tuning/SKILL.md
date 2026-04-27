@@ -292,6 +292,22 @@ After each iteration, report in this structure:
 ```
 ```
 
+## Nested delegation constraint
+
+Hermes `delegate_task` spawns **leaf subagents** that cannot call `delegate_task` themselves. If the target skill instructs subagents to spawn further subagents (e.g., "dispatch an implementer subagent, then a reviewer subagent"), those inner dispatches will be unavailable at runtime.
+
+**Workaround — Parent-orchestrated execution:**
+The parent agent directly performs the orchestration that the target skill describes for its subagents. For each target-skill step that says "dispatch a subagent to do X", the parent calls `delegate_task` with the implementer/reviewer/fixer context itself, sequentially enforcing the skill's ordering constraints (spec review before quality review, fix before re-review, etc.).
+
+This pattern still counts as empirical validation because:
+- Fresh subagents are used for each dispatched step.
+- The ordering constraints come from the target skill, not the evaluator.
+- The parent is a neutral orchestrator — it does not inject its own judgment into the subagent's work.
+
+**Do NOT** fall back to Structural Review Mode solely because of this constraint. Parent-orchestrated execution preserves empirical validity.
+
+**Pitfall — Terminal masking in subagent reports:** When subagents read files containing passwords or long strings, `read_file` / `cat` may mask values as `***` or truncate with `...`. This can cause spec reviewers to falsely report bugs. Always verify with `hexdump -C` or `python3 -c "open(path).read()"` when reviewing files that contain credentials, tokens, or long string literals.
+
 ## Red flags
 
 | 合理化 | 実態 |
@@ -304,6 +320,7 @@ After each iteration, report in this structure:
 | 同じ subagent を再利用 | 前回情報で汚染される |
 | まとめて全部直す | 効果が追跡できない |
 | Structural Review Mode で通った | 実行していないので empirical validation ではない |
+| ネスト不可だから構造レビューにフォールバック | 親主導の逐次実行で empirical validity を維持できる |
 
 ## Minimal Hermes example
 
