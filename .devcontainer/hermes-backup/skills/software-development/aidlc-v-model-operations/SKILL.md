@@ -65,6 +65,7 @@ sample-app/graphify-out/GRAPH_REPORT.md
 8. 変更後は、テスト・CoDD・Git状態で物理的証拠を確認する。
 9. サブモジュール型ラボでは、まずサブモジュールをコミット・pushし、その後、親リポジトリのサブモジュールポインタをコミット・pushする。
 10. 最終報告には、コマンドとRaw Outputを必ず含める。
+11. AI-DLC の `audit.md` 追記や日本語Markdownの複数行生成では、`terminal` / `execute_code` 経由の shell heredoc・`printf`・入れ子クォートを使わない。新規作成は `write_file`、既存ファイルへの追記は `read_file` で現内容を確認してから `patch` または安全なファイルAPIを使い、必ず `read_file` で作成・追記結果を検証する。
 
 ## 標準ワークフロー
 
@@ -132,11 +133,29 @@ git ls-files 'sample-app/**' 'scripts/**' 'codd/**' '.codd_version' | sed -n '1,
 | ドリフト制御 | `.github/workflows`, `.pre-commit-config.yaml`, `promptfoo.yaml`, `scripts/check_*.py` |
 | Git保全 | サブモジュールの場合は親側 `git status` と `git submodule status --recursive` |
 
-AI-DLC標準の監査ログ要件で `aidlc-docs/audit.md` を作る場合は、対象リポジトリが既に `docs/` をCoDD正本として使っていないか確認する。`aidlc-docs/` が未存在のリポジトリで新規作成すると、Git未追跡差分と親サブモジュールdirty状態を発生させる。最終報告では必ずこの副作用を隠さず報告し、次のいずれかを提示する。
+AI-DLC標準の監査ログ要件で `aidlc-docs/audit.md` を作る場合は、対象リポジトリが既に `docs/` をCoDD正本として使っていないか確認する。`aidlc-docs/` が未存在のリポジトリで新規作成すると、Git未追跡差分と親サブモジュールdirty状態を発生させる。
 
-- `aidlc-docs/audit.md` を正式AI-DLC成果物として残す。
-- 既存方針に合わせて `docs/` または `logs/` に統合する。
-- 分析のみとして監査ログを削除し、Git状態を戻す。
+ただし、ユーザーが明示的に「AI-DLCを使用して構造分析して」と依頼した場合、`audit.md` 断片だけを作って止めてはいけない。デフォルトの完了条件は、AI-DLCとして有効な最小成果物を揃えること。
+
+最小成果物:
+
+```text
+aidlc-docs/aidlc-state.md
+aidlc-docs/audit.md
+aidlc-docs/inception/reverse-engineering/business-overview.md
+aidlc-docs/inception/reverse-engineering/architecture.md
+aidlc-docs/inception/reverse-engineering/code-structure.md
+aidlc-docs/inception/reverse-engineering/api-documentation.md
+aidlc-docs/inception/reverse-engineering/component-inventory.md
+aidlc-docs/inception/reverse-engineering/technology-stack.md
+aidlc-docs/inception/reverse-engineering/dependencies.md
+aidlc-docs/inception/reverse-engineering/code-quality-assessment.md
+aidlc-docs/inception/reverse-engineering/reverse-engineering-timestamp.md
+```
+
+完了前に、上記ファイルが存在し空でないことを物理確認し、`aidlc-state.md` に Workspace Detection / Reverse Engineering の完了状態を記録する。既存の `docs/` がCoDD正本である場合は、`docs/` と `aidlc-docs/` の役割分離（例: `docs/` = CoDD正本、`aidlc-docs/` = AI-DLC実行成果物）を明示する。
+
+最終報告では必ずこの副作用を隠さず報告し、Git未コミット状態を残すなら、未追跡ファイル一覧と「コミットは未実行」の事実を明示する。
 
 構造分析の最小検証:
 
@@ -155,6 +174,73 @@ git ls-files --others --exclude-standard
 ```
 
 報告では、`codd measure` の全体 coverage と、専用スクリプトによる主要対象 coverage を分けて説明する。例: `codd measure` が `5/9` でも、`scripts/check_traceability_coverage.py` が `sample-app/src/**/*.py 5/5` を示す場合は、前者を改善指標、後者を初期ハードゲートとして扱う。
+
+### 2.6 AI-DLC成果物を監査可能な正規成果物へEvidence Hardeningする場合
+
+ユーザーが「監査可能な正規成果物にして」「正規AI-DLC成果物として成立させて」「成果物の製造プロセスと内容を監査可能にして」のように依頼した場合は、単なるファイル配置確認ではなく Evidence Hardening として扱う。
+
+完了条件は次の4点をすべて満たすこと。
+
+1. Raw Outputを先に固定する。
+2. 主張とRaw Outputの対応をEvidence Matrixにする。
+3. 各成果物本文にEvidence TraceとRaw Output抜粋を埋め込む。
+4. 最終検証ログとGit状態を保存し、未追跡・未コミット状態を隠さず報告する。
+
+推奨成果物:
+
+```text
+aidlc-docs/evidence/phase0-initial-state.log
+aidlc-docs/evidence/phase1-aidlc-rule-resolution.log
+aidlc-docs/evidence/phase2-repository-inventory.log
+aidlc-docs/evidence/phase3-codd-current-state.log
+aidlc-docs/evidence/phase4-application-and-tests.log
+aidlc-docs/evidence/phase5-graphify-current-state.log
+aidlc-docs/evidence/phase10-final-verification.log
+aidlc-docs/inception/reverse-engineering/evidence-matrix.md
+```
+
+Evidence Matrixには少なくとも次を含める。
+
+| 列 | 内容 |
+|---|---|
+| Claim ID | C-001などの安定ID |
+| Claim | 成果物で主張する内容 |
+| Raw Output Evidence | 根拠となる出力の要約ではなく対応箇所 |
+| Evidence File | `aidlc-docs/evidence/*.log` のパス |
+| Reflected In | 反映先成果物 |
+| Confidence | 高/中/低など |
+| Limitations | その根拠で言えないこと |
+
+各Reverse Engineering成果物には `## Evidence Trace` と `## Raw Output Excerpts` を入れる。`evidence-matrix.md` 自体は索引なので、この2見出しを持たないことがあってもよいが、その理由を最終検証ログで明示する。
+
+最終検証では以下を個別に実行し、`phase10-final-verification.log` に保存する。
+
+```bash
+date -u +%Y-%m-%dT%H:%M:%SZ
+pwd
+git status --short --branch
+git diff --name-status
+git diff --cached --name-status
+git ls-files --others --exclude-standard
+python -m pytest -v sample-app/tests
+codd validate
+codd scan
+codd measure
+python scripts/check_traceability_coverage.py
+python scripts/check_graphify_coverage.py
+git -C /workspaces/hermes-agent-001 status --short --branch
+git -C /workspaces/hermes-agent-001 submodule status --recursive
+```
+
+注意: これらを `execute_code` で長大な一括収集にするとタイムアウト時に最終ログが残らないことがある。長い最終検証は直接 `terminal` で分割実行し、結果を `write_file` で保存し、最後に `read_file` または `test -s` / `wc -c` で存在とサイズを検証する。
+
+`aidlc-state.md` には evidence-hardened 状態、Evidence Capture Status、Verification Status、Known Limitations を記録する。特に次は隠さない。
+
+- `aidlc-docs/` が未追跡かどうか。
+- コミット・push未実施かどうか。
+- 親リポジトリからサブモジュールがdirtyに見えるかどうか。
+- `codd measure` の全体 coverage と専用検査の coverage の違い。
+- Evidence Hardening が後追い補強の場合は、その事実。
 
 ### 3. CoDD状態を確認する
 

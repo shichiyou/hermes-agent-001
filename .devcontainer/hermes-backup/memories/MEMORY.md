@@ -23,8 +23,8 @@
 §
 - クリーンDRテスト: `docker volume rm devcontainer-home-hermes-agent-001` → Rebuild
 §
-## 課題解決プロセス（thinking-framework常時適用）
-障害→MECE分類+物理証拠確認→仮説→反証可能性自問→戦術設計
+## 課題解決プロセス
+障害→物理証拠→仮説→反証→戦術。日本語Markdown/audit追記はshell heredoc/printfを避け、write_file/read_file/patchで実施・検証する。
 §
 AGENTS.mdの原則(物理的証拠の最優先、ストーリー構築の禁止、Surgical Changesの徹底、誠実性の担保)を思考の最優先制約として遵守する。効率や完了報告よりも、正当なプロセスと物理的根拠を重視し、不都合な事実を隠さない。
 §

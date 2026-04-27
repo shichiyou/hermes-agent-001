@@ -49,6 +49,7 @@ Before stating a task is "complete," verify:
 - **Directory Tunnel Vision**: Only checking `/workspaces/project-a` while `/workspaces/project-b` contains the actual target.
 - **Deduplication Trust**: Relying on `dedup: true` from `read_file` without occasionally performing a fresh read to ensure the file hasn't been altered externally.
 - **Moment-in-Time Git Assumption**: Treating an earlier `git status` snapshot as if it were still true later. Git working tree state is time-sensitive; if a user questions your report, re-run the inspection and report only the current observed state.
+- **Shell Heredoc for Audit/Markdown Writes**: Creating or appending Japanese Markdown/audit entries through nested `execute_code` → `terminal` shell heredocs, `printf`, or complex quoting can fail silently or time out. Prefer file tools (`write_file`, `read_file` + `patch`) and verify with a post-write `read_file`.
 
 ## Git Working Tree Revalidation
 When discussing "uncommitted files" or whether a specific file is dirty/staged/untracked, do not rely on a single prior `git status`.
