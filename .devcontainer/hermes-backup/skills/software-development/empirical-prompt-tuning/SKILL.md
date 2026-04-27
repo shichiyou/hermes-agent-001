@@ -271,7 +271,7 @@ When improvement stalls near convergence, compare two variants through independe
 - Conservative variant: current prompt plus the next smallest patch.
 - Exploratory variant: one structural change, such as reordering sections, adding a minimal complete example, splitting dense paragraphs, or deleting redundant guidance.
 
-Do not ask a subagent “Which variant is better?” Direct A/B judgment is noisy and biased. Instead, run both variants on the same scenario set and compare objective outputs:
+Do not ask a subagent "Which variant is better?" Direct A/B judgment is noisy and biased. Instead, run both variants on the same scenario set and compare objective outputs:
 
 1. `[critical]` success
 2. accuracy
@@ -280,6 +280,86 @@ Do not ask a subagent “Which variant is better?” Direct A/B judgment is nois
 5. retries / tool burden when available
 
 If tied, choose the simpler prompt.
+
+## Cross-model reproducibility evaluation
+
+After tuning converges on one model, verify that the skill's instruction quality transfers across models. A skill that only works with one model has limited portability.
+
+### When to run
+
+- After iterative tuning converges on the primary model.
+- Before distributing or publishing a skill that others will use with different models.
+- When the primary model changes (e.g., version upgrade or provider switch).
+
+### How to run
+
+Use `delegate_task` with the `model` parameter to override the model while keeping everything else (toolset, protocol, scenarios, SKILL.md text) identical:
+
+```python
+delegate_task(
+    goal="<same goal text used in primary evaluation>",
+    context="<same context including full SKILL.md text>",
+    model={"provider": "ollama-cloud", "model": "gemma4:31b-cloud"},  # different model
+    toolsets=["terminal", "file"]  # same as primary
+)
+```
+
+This is the fairest comparison because:
+- Identical toolset and protocol — only the model differs.
+- Same scenarios and requirement checklists — no confounds from scenario design.
+- Same SKILL.md text — no version drift.
+
+### Alternative methods (less fair)
+
+| Method | Fairness | Trade-off |
+|--------|----------|-----------|
+| `delegate_task` model override | **Highest** — identical tools, protocol, scenarios | Limited to models available in Ollama Cloud |
+| ACP dispatch (`acp_command: "claude"`) | Medium — different tool-calling format | Introduces tool-format confound |
+| `ollama launch` locally | Low — different toolset and prompt format | Tests general model capability, not skill transferability |
+
+### Evaluation dimensions
+
+Compare across these dimensions:
+
+| Dimension | What to measure | Expected variation |
+|-----------|----------------|--------------------|
+| [critical] success rate | All [critical] items passed | Should be 100% if skill is model-agnostic |
+| Overall accuracy | Weighted score across all requirements | May drop 10-15% for smaller models |
+| Discretionary fill-ins | Extra features or assumptions not in spec | Smaller models may over-implement (scope creep) |
+| Structural understanding | Did the model follow the process order correctly | Smaller models may skip steps or reorder |
+| Ambiguity handling | How "???" or edge cases are resolved | Smaller models may miss Leaf Constraint steps |
+
+### Reporting format
+
+```markdown
+## Cross-model evaluation
+
+| Metric | Primary model | Secondary model | Delta |
+|--------|--------------|-----------------|-------|
+| Scenario A accuracy | X% | Y% | ±Z% |
+| Scenario B accuracy | X% | Y% | ±Z% |
+| [critical] failures | N | M | ±P |
+| Avg discretion fill-ins | N | M | ±P |
+
+### Key differences
+- <specific behavioral difference, e.g., "secondary model put tests inline rather than separate files">
+
+### Conclusions
+- <whether skill instructions transfer across models>
+- <which specific skill sections may need clarification for smaller models>
+
+### Caveats
+- Single execution per scenario (no statistical significance)
+- Model size difference confounds with architecture difference
+- Temperature/default settings may differ between providers
+```
+
+### Caveats
+
+1. **Single execution is not statistically significant** — one run per scenario can show transferability failures, but cannot prove transferability. Record this limitation.
+2. **Model size confounds architecture** — a 32B Gemma vs 1T Kimi comparison tests both parameter count and training data/architecture. Attribute differences conservatively.
+3. **Provider settings may differ** — default temperature, system prompt handling, and tool-calling format vary between providers. The `model` override in `delegate_task` minimizes but may not eliminate all differences.
+4. **Do NOT skip this step** when a skill is intended for multi-model use. A skill that works at 100% on one model but 50% on another indicates model-specific prompt dependency, not genuine instruction clarity.
 
 ## Reporting format to the user
 
@@ -391,8 +471,11 @@ docs/empirical-prompt-tuning-evaluation/
 │   │   ├── static-check.md            # Step 0 findings
 │   │   ├── parent-evaluation.md       # Step 3/4 parent-side evaluation
 │   │   └── patch-design.md            # Step 4 patch design
-│   ├── iter-02/                       # Iteration 2 (post-patch)
+│   ├── iter-02/
 │   │   └── parent-evaluation.md
+│   ├── cross-model-<model>/
+│   │   ├── design.md              # Cross-model evaluation design
+│   │   └── results.md             # Cross-model comparison results
 │   └── final-report.md                # Step 7 final report
 ├── artifacts/                         # Physical evidence (subagent outputs, test logs)
 │   ├── iter-01/
@@ -451,6 +534,7 @@ Before claiming the target instruction is tuned:
 - [ ] Patch applied with file/skill tools and verified by physical evidence.
 - [ ] Convergence or stop condition explicitly stated.
 - [ ] Hold-out scenario verified (accuracy drop < 15pt vs tuned scenarios, no overfitting).
+- [ ] Cross-model reproducibility evaluated (at least one secondary model) when skill is intended for multi-model use.
 - [ ] Remaining risk, if any, reported without hiding it.
 
 ## Related skills
