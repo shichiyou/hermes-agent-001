@@ -388,6 +388,28 @@ When designing edge cases, cover at least one of these dimensions (in addition t
 | Review loop | Does the fix→re-review loop work? | First implementation intentionally incomplete (tests retry cycle) |
 | Nesting constraint | Can the skill's subagent patterns execute under leaf constraints? | Skill says "dispatch a reviewer subagent" but leaf cannot delegate |
 
+**Holdout scenario design:** Hold-out scenarios should probe a dimension *not covered by the tuning scenarios*. This tests whether the skill generalizes beyond what was patched for. Example: if tuning scenarios tested ordering and ambiguity, the holdout should test retry loops or Red Flags adherence.
+
+## Post-subagent physical verification
+
+After each `delegate_task` returns, the parent MUST verify the subagent's claims independently before recording them in the evaluation table:
+
+1. **Run the artifact's tests** — `pytest`, `make test`, or equivalent.
+2. **Import-check the deliverable** — `python -c "from module import Class"` or equivalent.
+3. **Read key files** — `read_file` on produced artifacts, not just the subagent's report.
+4. **For credentials/tokens/long strings** — Use `hexdump -C` or `python3 -c "print(repr(open(f).read()))"`, not `cat -n` or `read_file` alone (masking/truncation risk).
+
+Do not record a requirement as `○` based solely on the subagent's self-report. Parent-side physical evidence is mandatory.
+
+## Subagent timeout handling
+
+If a `delegate_task` subagent times out:
+
+1. **Check artifacts first** — The subagent may have produced partial or complete output before timeout. Use `find`, `read_file`, and `pytest` to verify.
+2. **Count partial results** — If artifacts exist and pass physical verification, count requirements as met even though the subagent report is incomplete.
+3. **Do NOT attribute timeout to the skill being evaluated** — Timeout is a resource/infrastructure issue, not a skill instruction defect. Mark it as an infrastructure note, not a failure pattern.
+4. **Re-dispatch if necessary** — If artifacts are incomplete or no verification is possible, re-dispatch a fresh subagent for that scenario only.
+
 ## Completion checklist
 
 Before claiming the target instruction is tuned:
