@@ -38,7 +38,14 @@ Fluency is not Accuracy. The ability to generate a logically sounding explanatio
 - Before any `patch` or `write_file`, the agent must perform a `read_file` regardless of "memory."
 - The agent must state: "My internal model suggests X, but the physical territory (raw output) shows Y. I will act on Y."
 
-### 4. The Inversion Gate (Falsification)
+### 4. The Local-vs-External Gate
+**Rule**: When answering questions about "how things work here" or "how this project applies X", explicitly separate externally sourced knowledge (community reports, documentation, papers) from locally verifiable state (file contents, git history, running systems).
+- **Incorrect**: Combining community best-practices with local context into a seamless narrative that implies the practices are implemented locally. (Example: "In this lab, we use deterministic gates to replace human approvals" — when AGENTS.md still says "Wait for Explicit Approval".)
+- **Correct**: "External source A says approach X works. Checking local state... [read_file / search_files]. Local state shows Y. Therefore: approach X is a hypothesis, not an implemented fact."
+- **Trigger**: Any answer that references both external/community sources AND local project context in the same sentence.
+- **Self-check before sending**: For every claim about local state, have I run a tool to verify it in this session? If not, label it explicitly as "hypothesis" or "not verified locally".
+
+### 5. The Inversion Gate (Falsification)
 **Rule**: A solution is not verified until a failure scenario has been attempted and refuted.
 - After a fix: "How would this fix fail? I will now attempt to trigger that failure case."
 - Verification is only complete when the failure case is physically proven to be resolved.
