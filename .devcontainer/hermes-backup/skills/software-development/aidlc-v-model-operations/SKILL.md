@@ -35,6 +35,23 @@ tags:
 - 運用後の改善点を `docs/process/ai-agent-v-model-operating-model.md` に反映するとき
 - サブモジュール型ラボで、ラボ側と親リポジトリ側を両方保全するとき
 
+## AI-DLC 用語階層（方法論定義論文 vs OSS実装の差異）
+
+方法論定義論文（`https://prod.d13rzhkk8cj2z0.amplifyapp.com/`）と `aidlc-workflows` OSS実装の間で用語の粒度・存在に差異がある。
+
+**方法論上の階層**: Intent → Unit → Bolt
+
+| 用語 | 方法論定義論文 | aidlc-workflows実装 |
+|---|---|---|
+| **Intent** | 事業的意図/要求。全ての出発点 | 明示的なステージ名としては存在しない。Requirements Analysisが相当 |
+| **Unit** | Intentから導出される凝集性のある機能ブロック（DDDサブドメイン/Epic相当）。疎結合で独立デプロイ可能 | Unit of Work（UOW）として同じ概念。Application Designステージの前提が必要。マイクロサービスなら各Unitが独立デプロイ可能サービス、モノリスならアプリ全体が1Unit |
+| **Bolt** | AI-DLCの最小反復単位（Sprint相当、ただし時間〜日単位）。1Unitは1以上のBoltで実行（並列/順次）。AIが計画、開発者/POが検証 | **明示的なステージ/成果物として存在しない**。Construction Phase内のCode Generation/Build & Testサイクルが暗黙的にBolt相当の働きをする |
+
+重要な観察:
+- kiakiraki氏の批判「10-26人間検証ポイント/Bolt」は、1Bolt（時間〜日単位の反復）内で10〜26回の人間承認が発生することを指す
+- PR #156 で「Units Planning」は独立ステージではなくUnits Generation内のsub-stepに整理されたことが確認済み
+- 用語の正確な定義は `terminology.md`（`https://raw.githubusercontent.com/awslabs/aidlc-workflows/main/aidlc-rules/aws-aidlc-rule-details/common/terminology.md`）を参照
+
 ## 前提となる代表的なファイル
 
 ラボまたは対象プロジェクトに、可能な限り以下が存在することを確認します。
