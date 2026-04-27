@@ -104,6 +104,58 @@ docs/process/ai-agent-v-model-operating-model.md
 - 逸脱管理
 - この文書を基準にした次の整備順序
 
+### 2.5 既存リポジトリの構造分析・棚卸しを行う場合
+
+ユーザーが「AI-DLCを使って既存リポジトリの構造を分析して」「ラボの構造を確認して」「現状を棚卸しして」のように依頼した場合は、実装変更よりも Brownfield Reverse Engineering / Workspace Detection として扱う。
+
+最低確認コマンド:
+
+```bash
+cd /対象リポジトリ
+pwd
+git status --short --branch
+git log --oneline -3
+for d in .aidlc/aidlc-rules/aws-aidlc-rule-details .aidlc-rule-details .kiro/aws-aidlc-rule-details .amazonq/aws-aidlc-rule-details; do [ -d "$d" ] && echo "RULE_DIR=$d"; done
+git ls-files | sed -n '1,200p'
+git ls-files 'docs/**' 'README.md' 'AGENTS.md' 'CLAUDE.md' '.github/**' | sed -n '1,200p'
+git ls-files 'sample-app/**' 'scripts/**' 'codd/**' '.codd_version' | sed -n '1,200p'
+```
+
+構造分析で見る観点:
+
+| 観点 | 確認内容 |
+|---|---|
+| AI-DLC配置 | `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, `.aidlc-rule-details/` の有無 |
+| CoDD配置 | `codd/codd.yaml`, `docs/**/*.md` frontmatter, `codd validate/scan/measure` |
+| Graphify配置 | `sample-app/graphify-out/graph.json`, `GRAPH_REPORT.md`, coverage check |
+| アプリ構造 | `sample-app/src`, `sample-app/tests`, `pyproject.toml` 等 |
+| ドリフト制御 | `.github/workflows`, `.pre-commit-config.yaml`, `promptfoo.yaml`, `scripts/check_*.py` |
+| Git保全 | サブモジュールの場合は親側 `git status` と `git submodule status --recursive` |
+
+AI-DLC標準の監査ログ要件で `aidlc-docs/audit.md` を作る場合は、対象リポジトリが既に `docs/` をCoDD正本として使っていないか確認する。`aidlc-docs/` が未存在のリポジトリで新規作成すると、Git未追跡差分と親サブモジュールdirty状態を発生させる。最終報告では必ずこの副作用を隠さず報告し、次のいずれかを提示する。
+
+- `aidlc-docs/audit.md` を正式AI-DLC成果物として残す。
+- 既存方針に合わせて `docs/` または `logs/` に統合する。
+- 分析のみとして監査ログを削除し、Git状態を戻す。
+
+構造分析の最小検証:
+
+```bash
+. .venv/bin/activate 2>/dev/null || true
+python -m pytest -v sample-app/tests
+codd validate
+codd scan
+codd measure
+python scripts/check_traceability_coverage.py
+python scripts/check_graphify_coverage.py
+git status --short --branch
+git diff --name-status
+git diff --cached --name-status
+git ls-files --others --exclude-standard
+```
+
+報告では、`codd measure` の全体 coverage と、専用スクリプトによる主要対象 coverage を分けて説明する。例: `codd measure` が `5/9` でも、`scripts/check_traceability_coverage.py` が `sample-app/src/**/*.py 5/5` を示す場合は、前者を改善指標、後者を初期ハードゲートとして扱う。
+
 ### 3. CoDD状態を確認する
 
 ```bash
