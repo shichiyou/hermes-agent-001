@@ -87,6 +87,22 @@ If your test defines `vars.task` but the prompt file lacks a `{{task}}` placehol
 
 **Incorrect:** prompt file describes the placeholder but omits the actual `{{task}}` syntax.
 
+### External Prompt Files (`file://`) Do NOT Substitute Variables
+
+A critical variant of the missing-placeholder pitfall: when a prompt is loaded via `file://../prompts/foo.txt`, promptfoo may **fail to substitute** `{{var}}` placeholders even if the file contains them correctly. The placeholder text reaches the model verbatim as `{{task}}`. Verified with promptfoo v0.121.9.
+
+**Workaround:** Inline the prompt directly inside the YAML config:
+```yaml
+prompts:
+  - |
+    あなたはAI-DLCの要件分析者です。
+    【タスク】
+    {{task}}
+    ...
+```
+
+Or pre-process the file into a temporary inline config before evaluation.
+
 ### Multiple Variables
 
 If some prompts use `{{task}}` and others use `{{code}}`, every test should provide **both** variables (or use `defaultTest`).
@@ -97,6 +113,8 @@ defaultTest:
     task: ""
     code: ""
 ```
+
+**Caution:** `defaultTest.vars` overrides per-test vars in some promptfoo versions. If a test declares `vars.task: "actual value"` but `defaultTest.vars.task: ""` is set, the empty string wins. Omit `defaultTest.vars` entirely when each test defines its own variables.
 
 ## The Cartesian Product Pitfall
 
@@ -174,20 +192,25 @@ for r in data['results']['results']:
 
 1. **Prompt file missing `{{var}}` placeholder** — vars are passed but never injected. The model outputs a generic template response, and assertions against expected content fail.
 
-2. **Ollama local model timeout** — Large local models can exceed 300s. Use Cloud endpoints or increase `options.timeout`.
+2. **`file://` external prompt files not substituting `{{var}}`** — Even when the file contains `{{task}}`, promptfoo may pass the literal string to the model. Inline prompts in the YAML config are the reliable workaround.
 
-3. **Cartesian product explosion** — Multiple prompts + multiple tests = all combinations. Without careful variable scoping, most combinations are invalid and inflate failure rates.
+3. **`defaultTest.vars` overriding per-test vars** — If `defaultTest.vars.task: ""` is set, a test's `vars.task: "real value"` may be overwritten by the empty string. Remove `defaultTest.vars` entirely when tests define their own variables.
 
-4. **YAML triple-quote indentation crash** — `"""` inside nested YAML maps breaks js-yaml parsing. Always use `|` literal blocks for multi-line code strings.
+4. **Ollama local model timeout** — Large local models can exceed 300s. Use Cloud endpoints or increase `options.timeout`.
 
-5. **Assuming `output.json` is old** — promptfoo caches and appends. Remove old `output.json` before a fresh run if you need clean physical evidence.
+5. **Cartesian product explosion** — Multiple prompts + multiple tests = all combinations. Without careful variable scoping, most combinations are invalid and inflate failure rates.
+
+6. **YAML triple-quote indentation crash** — `"""` inside nested YAML maps breaks js-yaml parsing. Always use `|` literal blocks for multi-line code strings.
+
+7. **Assuming `output.json` is old** — promptfoo caches and appends. Remove old `output.json` before a fresh run if you need clean physical evidence.
 
 ## Verification Checklist
 
 - [ ] `npm install` completed and `node_modules/.bin/promptfoo` exists
 - [ ] `providers` section points to an available model (verified with `ollama list` or API key set)
 - [ ] Each prompt file contains the exact `{{var}}` placeholder matching the test `vars` keys
-- [ ] `defaultTest.vars` provides empty strings for all variables used across prompts
+- [ ] **If using `file://` external prompts:** Run a manual test (`npx promptfoo eval -c ...`) and inspect `output.json` to ensure `{{var}}` was substituted, not passed literally. If literal, inline the prompt in the YAML config.
+- [ ] **If using `defaultTest.vars`:** Verify that per-test `vars` are NOT silently overridden by empty `defaultTest` values. Remove `defaultTest.vars` entirely if tests define their own.
 - [ ] Multi-line code blocks in YAML use `|` not `"""`
 - [ ] `options.maxConcurrency` and `options.timeout` are set for Ollama runs
 - [ ] Evaluation outputs `output.json` which is physically inspected to verify pass/fail mapping
