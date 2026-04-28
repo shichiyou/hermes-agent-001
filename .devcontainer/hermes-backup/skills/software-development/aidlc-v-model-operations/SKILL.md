@@ -316,28 +316,74 @@ AIが自律実行してよい作業:
 - リリース判断
 - Graphify差分の意味が不明な場合の受容判断
 
-### 6. 小さな変更要求で運用する
+### 6. 小さな変更要求で運用する（1循環検証シナリオ）
 
-初回運用では、小さな変更要求を1件流して、運用定義が機能するか確認する。
+初回運用では、小さな変更要求を1件流して、運用定義が機能するか確認する。これを**1循環検証シナリオ（段階0）**と呼ぶ。
 
-例:
+#### 6.1 題材選定
 
-```text
-タスク削除機能を追加する
-```
+既存カバレッジ表の `Not Covered` 要件または、promptfoo評価ケースの入力と重なる機能を選ぶ。選定基準:
 
-このとき観察すること:
+1. カバレッジ表で `Not Covered` として明示されている機能
+2. 業務判断が含まれる（AIが勝手に決められない判断点がある）
+3. 変更対象が既存ファイルに限定され、新規ファイルが少ない
+4. V字モデルの全レイヤー（事業要求→受入テスト）を通過できる
+
+#### 6.2 観察対象
 
 | 観察対象 | 見るべき挙動 |
 |---|---|
-| 要求定義 | 物理削除か論理削除かを人間に質問するか |
-| 受入条件 | 削除済みタスクを一覧に出すか確認するか |
-| 設計 | `TaskService` や `Repository` への影響を整理するか |
+| 要求定義 | 業務判断（物理/論理削除等）を人間に質問するか |
+| 受入条件 | 受入条件が検証可能か |
+| 設計 | 既存コンポーネントへの影響を整理するか |
 | CoDD | `req:*`, `design:*`, `source_files`, `test_files` を作るか |
 | 実装 | テスト駆動で進めるか |
 | Graphify | 影響範囲と構造変化を見るか |
 | ゲート | pytest / codd validate / codd scan / カバレッジ確認を行うか |
 | 逸脱 | 未決事項があれば停止・質問するか |
+
+#### 6.3 承認品質の評価（Approval Hell 実測）
+
+1循環を通じて、各ステージの「Wait for Explicit Approval」が実質的判断か rubber stamp かを記録する。これが段階0の核心観察。
+
+| 評価 | 定義 |
+|---|---|
+| **実質的** | 承認なしに進めると品質リスクまたは要件逸脱の危険がある |
+| **rubber stamp** | 承認内容が機械的判定や前段の承認で代替可能 |
+
+実測結果をもとに、Wikiの approval hell 対策ページ（段階1〜3）の優先度を決定する。
+
+#### 6.4 定量的成功基準
+
+1循環の完了判定には10項目の定量基準を設ける:
+
+| ID | 成功基準 | 測定方法 | 合格閾値 |
+|---|---|---|---|
+| S1 | aidlc-state.md に全ステージの判定が記録される | aidlc-state.md の Stage Progress | 全ステージに判定が記録 |
+| S2 | audit.md に全承認のタイムスタンプが記録される | audit.md を grep して計数 | 全承認回数分の記録 |
+| S3 | 新規要件が CoDD で追跡される | codd scan 出力 | 新規 node_id が存在 |
+| S4 | pytest が PASS する | python -m pytest -v | 既存+新規テストが全て PASS |
+| S5 | codd validate が OK | codd validate | エラー0件 |
+| S6 | 全体 coverage が低下しない | codd measure | 追加前以下に低下しない |
+| S7 | Graphify に新エッジが反映される | graphify update 後の graph.json | 新規機能関連のノード/エッジが増加 |
+| S8 | カバレッジ表の新規要件が Covered になる | トレース表目視確認 | 新規要件行の全列が埋まる |
+| S9 | aidlc-docs/ が Git コミットされる | git log --oneline -5 | 1循環完了コミットが存在 |
+| S10 | 重複ファイルが生成されない | find で確認 | *_modified* や *_new* のファイルが0件 |
+
+#### 6.5 進捗管理文書の作成
+
+1循環検証シナリオは、CoDD frontmatter付きのMarkdown文書として作成し、既存文書群に相互参照を追加する:
+
+1. **シナリオ文書**: `docs/process/one-cycle-verification-scenario.md`
+   - CoDD frontmatter (`node_id`, `type: design`, `status: draft`, `depends_on`, `confidence`)
+   - セクション構成: 目的、題材根拠、開発案件分類、ステージ別評価ポイント、承認回数/評価マトリクス、成功基準(S1-S10)、進捗管理表(チェックボックス付き)、前提確認
+2. **相互参照の追加**: シナリオ文書の `depends_on` 参照先に `depended_by` を追加
+3. **Wiki概要ページ**: `wiki/concepts/aidlc-one-cycle-verification-scenario.md`
+4. **検証**: `codd validate` → `codd scan` → `codd measure` → `pytest` → `check_traceability_coverage` → `graphify update` の全ゲートが通過することを物理的に確認
+
+CoDD frontmatterの `depended_by` 参照先として、`req:task-delete` のような**まだ存在しないnode_id**は書かない。その要件が追加された時点で参照を追加する。
+
+シナリオ文書の `status` は `draft` とする。1循環が完走して初めて実績に基づく値付けが可能になる。
 
 ### 7. 改善点を反映する
 
