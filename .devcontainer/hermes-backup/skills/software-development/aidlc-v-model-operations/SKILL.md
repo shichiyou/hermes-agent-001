@@ -65,6 +65,7 @@ wiki/concepts/aidlc-greenfield-brownfield-flow.md
 codd/codd.yaml
 sample-app/graphify-out/graph.json
 sample-app/graphify-out/GRAPH_REPORT.md
+docs/design/DESIGN.md           ← design.md ベースの視覚設計トークン定義
 ```
 ```
 
