@@ -4,3 +4,6 @@
 [submodule "experiences/aidlc-codd-graphify-lab"]
 	path = experiences/aidlc-codd-graphify-lab
 	url = https://github.com/shichiyou/aidlc-codd-graphify-lab.git
+[submodule "experiences/promptfoo-ci-lab"]
+	path = experiences/promptfoo-ci-lab
+	url = https://github.com/shichiyou/promptfoo-ci-lab.git
