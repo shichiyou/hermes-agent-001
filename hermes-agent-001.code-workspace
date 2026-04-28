@@ -9,6 +9,10 @@
       "path": "experiences/aidlc-codd-graphify-lab"
     },
     {
+      "name": "実験: promptfoo-ci-lab",
+      "path": "experiences/promptfoo-ci-lab"
+    },
+    {
       "name": "Wiki",
       "path": "wiki"
     }
