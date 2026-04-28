@@ -21,8 +21,6 @@
 - **ロールメンション（@役職）は反応しない** — `message.mentions`に含まれないため。ユーザーメンション（@Bot名）を使うこと
 - manage_threads権限なし。auto_thread有効だがスレッド作成不可でフォールバック動作
 §
-- クリーンDRテスト: `docker volume rm devcontainer-home-hermes-agent-001` → Rebuild
-§
 ## 課題解決プロセス
 障害→物理証拠→仮説→反証→戦術。日本語Markdown/audit追記はshell heredoc/printfを避け、write_file/read_file/patchで実施・検証する。
 §
