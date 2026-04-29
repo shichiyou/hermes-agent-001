@@ -133,14 +133,28 @@ fs.writeFileSync(outFile, yaml.dump(resolved, { lineWidth: -1 }));
 console.log(`Resolved: ${configFile} → ${outFile}`);
 ```
 
-Register it in `package.json`:
+Register it in `package.json` (recommended as the canonical execution path):
 ```json
 "scripts": {
-  "eval:phase1": "node scripts/prepare-eval.js tests/phase1.yaml && promptfoo eval -c tests/phase1-resolved.yaml --no-progress-bar"
+  "eval": "npm run eval:phase1 && npm run eval:phase2 && npm run eval:phase3",
+  "eval:phase1": "node scripts/prepare-eval.js tests/requirements-analysis.yaml && promptfoo eval -c tests/requirements-analysis-resolved.yaml --no-progress-bar",
+  "eval:phase2": "node scripts/prepare-eval.js tests/quality-gate.yaml && promptfoo eval -c tests/quality-gate-resolved.yaml --no-progress-bar",
+  "eval:phase3": "node scripts/prepare-eval.js tests/impl-plan.yaml && promptfoo eval -c tests/impl-plan-resolved.yaml --no-progress-bar"
 }
 ```
 
-And add `*.resolved.yaml` to `.gitignore`.
+And add `*-resolved.yaml` (note the **hyphen**, not a dot) to `.gitignore`:
+```
+node_modules/
+promptfoo-output/
+.env
+*.log
+dist/
+coverage/
+*-resolved.yaml
+```
+
+And add `*-resolved.yaml` (note the hyphen, not a dot) to `.gitignore`.
 
 ### Multiple Variables
 
@@ -227,7 +241,77 @@ for r in data['results']['results']:
 
 **Critical rule:** Do not trust the terminal table summary alone. Always cross-check `output.json` to confirm which specific test+prompt combinations contributed to the pass/fail counts.
 
-## Multi-Phase Config Organization
+## CI/CD Integration
+
+Use `npm run eval:phase*` (never direct `promptfoo eval` calls) so `prepare-eval.js` runs first. The Ollama provider typically fails on standard GitHub-hosted runners due to missing model servers; treat CI runs as **structure checks** rather than model execution verification.
+
+```yaml
+name: Promptfoo Evaluation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 9 * * 1'
+
+# --- 制約注記 ---
+# 本ワークフローは file:// プロンプト展開（prepare-eval.js）を含む構造検証を行う。
+# プロバイダーが ollama であるため、GitHub Actions 標準 runner 上ではモデル接続不可。
+# 実際の評価実行はローカル環境（npm run eval:phase*）で実施すること。
+# CI 上では「ワークフロー構造・npm scripts 連携」の検証として機能する。
+
+jobs:
+  eval-all:
+    name: Eval All Phases (Structure Check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run eval:phase1
+        continue-on-error: true
+      - run: npm run eval:phase2
+        continue-on-error: true
+      - run: npm run eval:phase3
+        continue-on-error: true
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: promptfoo-results-all
+          path: promptfoo-output/
+
+  eval-phase1:
+    name: Eval Phase 1 - Requirements Analysis
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run eval:phase1
+        continue-on-error: true
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: promptfoo-results-phase1
+          path: promptfoo-output/
+```
+
+**Critical rules for CI integration:**
+- **Never call `promptfoo eval` directly** in CI steps — always use `npm run eval:phase*`
+- **Always use `continue-on-error: true`** when the provider is Ollama (not runnable on standard runners)
+- **Upload artifacts with `if: always()`** so output is preserved even on "failure"
+- **Replace `npx promptfoo@latest eval -c tests/phase.yaml`** style calls with npm scripts that chain `prepare-eval.js` first
 
 When evaluating prompts that serve different AI-DLC phases (requirements analysis, quality gate, implementation plan), **split them into separate config files** rather than combining all prompts in one file. This avoids the Cartesian product pitfall and keeps each phase's tests isolated.
 

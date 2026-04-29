@@ -61,6 +61,13 @@ Important distinction: a clean `git submodule update --init --recursive` checkou
 - **The "Formal Plan Trap"**: Presenting a plan to the user as a substitute for actual physical exploration. Always execute the "Audit" phase before presenting the "Execution" plan.
 
 ## Verification Criteria
-- `cd <submodule> && git branch` $\rightarrow$ Must show `* main`.
-- `cd <submodule> && git log` $\rightarrow$ Must show a linear path from `origin/main` to the latest local commit.
-- Parent `git status` $\rightarrow$ Must be `working tree clean`.
+- `cd <submodule> && git branch` → Must show `* main`.
+- `cd <submodule> && git log` → Must show a linear path from `origin/main` to the latest local commit.
+- Parent `git status` → Must be `working tree clean`.
+
+## Step 6: Post-Completion Parent Repo Check (Mandatory)
+**When**: After finishing work inside a submodule and reporting completion.
+**Action**: Run `git status --short` in the parent repository (`/workspaces/hermes-agent-001/`).
+**Expected**: Empty output (clean). If output shows `M <submodule-path>`, the submodule pointer is uncommitted.
+**Why this matters**: The submodule's internal commits are independent from the parent repo's pointer. Without this step, the parent repo retains the old submodule hash, making the "completed" work invisible to anyone cloning the parent repository. This is a "Ghost Completion".
+**Fix if dirty**: Stage pointer → Commit with descriptive message → Push → Verify `git rev-parse HEAD` == `git ls-remote origin main`.
