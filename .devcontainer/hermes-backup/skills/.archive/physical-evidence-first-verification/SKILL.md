@@ -13,7 +13,7 @@ metadata:
 # Physical Evidence First Verification
 
 ## Trigger
-Use this skill whenever a task involves state changes in the filesystem, configuration updates, or a claim of "completion." Especially critical when the user expresses doubt about the actual state or when working in environments with multiple similar directories (e.g., `hermes-agent-001` vs `hermes-agent-001`).
+Use this skill whenever a task involves state changes in the filesystem, configuration updates, or a claim of "completion." Especially critical when the user expresses doubt about the actual state or when working in environments with multiple similar directories (e.g., `hermes-agent-lab` vs `hermes-agent-001`).
 
 ## Core Principle
 **"If it's not in the Raw Output, it didn't happen."**

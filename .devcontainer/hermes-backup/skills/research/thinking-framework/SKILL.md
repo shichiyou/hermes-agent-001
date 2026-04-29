@@ -7,8 +7,8 @@ license: MIT
 metadata:
   hermes:
     tags: [thinking, analysis, decision-making, consulting, problem-solving, strategy, framework]
-    related_skills: [ai-agent-conduct, agile-meta-thinking, plan, writing-plans]
-    co_required: [ai-agent-conduct]
+    related_skills: [agile-meta-thinking, plan, writing-plans, physical-evidence-and-verification]
+    co_required: []
 ---
 
 # Consulting Thinking Framework
@@ -240,6 +240,99 @@ Understanding what to invest in learning, based on obsolescence speed.
 - **Confirmation bias in verification**: Only seeking evidence that supports the hypothesis.
 - **Using outdated weapons**: Frameworks and tools from years ago may not apply today.
 - **Missing MECE**: Gaps or overlaps in analysis lead to blind spots or wasted effort.
+
+## Related Skills
+
+- **ai-agent-conduct** (co-required): Behavioral principles for executing the resulting actions. thinking-framework defines "what question to ask and how to analyze"; ai-agent-conduct defines "how to execute and verify". Always load both together.
+- **agile-meta-thinking**: How to iterate this thinking process and monitor it from above.
+- **plan** / **writing-plans**: How to turn the output into a concrete implementation plan.
+- **mental-models**: A catalog of ~30 cross-disciplinary thinking lenses (Inversion, Occam’s Razor, First Principles, Second-Order Thinking, etc.) for applying at specific steps of the framework.
+
+---
+
+## Appendix A — Agile Thinking Cycles & Meta-Thinking
+
+> Use this subsection when a task spans multiple sprints, requires retrospectives, or when you need to monitor the quality of your own reasoning.
+
+### PDCA vs OODA
+- **PDCA** (Plan-Do-Check-Act): Best for stable environments with predictable feedback loops.
+- **OODA** (Observe-Orient-Decide-Act): Best for fast-changing environments where rapid iteration matters more than perfect planning.
+
+### Hypothesis Verification Loop
+1. **Form** — state a falsifiable hypothesis.
+2. **Design verification** — choose a minimal experiment.
+3. **Run MVP** — execute the smallest test that yields signal.
+4. **Learn** — collect evidence, not opinions.
+5. **Update or Discard** — revise hypothesis or abandon it.
+
+### Sprint Structure
+Each Sprint / Epic / Story / Task runs the full thinking-framework cycle:
+- **Sprint Planning** → Issue Thinking + Hypothesis Thinking
+- **Sprint Execution** → Strategy Thinking + Tactics Thinking
+- **Sprint Review** → Fermi estimation + KPI review
+- **Sprint Retrospective** → Meta-cognition + ledger update
+
+### Meta-Cognition Functions
+- **Monitoring**: track whether the process is being followed.
+- **Evaluation**: assess if current results match expected outcomes.
+- **Control**: intervene when execution drifts.
+
+### Retrospective Templates
+- **KPT** (Keep / Problem / Try)
+- **YWT** (Did / Learned / Will do)
+- Apply after every sprint or major milestone.
+
+### Bias Countermeasures
+| Bias | Symptom | Countermeasure |
+|---|---|---|
+| Confirmation bias | Only seeking evidence that supports hypothesis | Explicitly ask: "What would prove me wrong?" |
+| Sunk cost | Continuing because of past investment | Ask: "If I started today, would I still choose this?" |
+| Anchoring | Over-relying on first data point | Generate 3 independent estimates |
+| Overconfidence | Reporting certainty without evidence | Require physical evidence before claiming |
+
+---
+
+## Appendix B — Mental Models Reference
+
+> A condensed catalog of cross-disciplinary thinking lenses. Use them at specific steps of the framework.
+
+### General Thinking Tools
+| Model | Best Applied At | One-Line Summary |
+|---|---|---|
+| Inversion | Hypothesis Thinking | Instead of asking "How do I succeed?", ask "How do I guarantee failure?" |
+| Occam’s Razor | Hypothesis Thinking | The simplest explanation with equal evidence is best. |
+| First Principles | Issue Thinking | Break down to fundamental truths; rebuild from there. |
+| Second-Order Thinking | Strategy Thinking | Ask: "And then what?" for every proposed action. |
+| Map ≠ Territory | Issue Thinking | The model is not the reality; always verify with physical evidence. |
+| Circle of Competence | Strategy Thinking | Know the edge of what you actually understand. |
+
+### System Thinking
+| Model | Best Applied At | One-Line Summary |
+|---|---|---|
+| Feedback Loops | Strategy/Tactics | Identify reinforcing or balancing loops before acting. |
+| Bottlenecks | Tactics Thinking | Find the constraint; optimize it, not everything else. |
+| Margin of Safety | Strategy Thinking | Build in buffers because estimates are wrong. |
+| Entropy | Monitoring | Systems naturally drift toward disorder; maintenance is non-optional. |
+
+### Numeracy
+| Model | Best Applied At | One-Line Summary |
+|---|---|---|
+| Power Laws | Issue Thinking | A minority of causes produces the majority of effects. |
+| Compounding | Strategy Thinking | Small consistent gains accumulate exponentially. |
+| Fermi Estimation | Quantification | Logically estimate unknown numbers from available evidence. |
+
+### Microeconomics & Strategy
+| Model | Best Applied At | One-Line Summary |
+|---|---|---|
+| Opportunity Cost | Strategy Thinking | The cost of the next best alternative foregone. |
+| Incentives | Tactics Thinking | People (and agents) do what they are rewarded for. |
+| Comparative Advantage | Strategy Thinking | Do what you are least bad at; trade for the rest. |
+
+### Pitfalls
+- **Model Overload**: Applying too many lenses to a simple problem creates paralysis.
+- **Map ≠ Territory complacency**: Treating a model as gospel without physical verification.
+- **Inversion-as-pessimism**: Using inversion only to find problems, not to design robustness.
+- **Second-order paralysis**: Spending all your time predicting side effects without acting.
 
 ## Related Skills
 
