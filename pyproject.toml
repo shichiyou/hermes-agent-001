@@ -1,5 +1,5 @@
 [project]
-name = "hermes-agent-template"
+name = "hermes-agent-001"
 version = "0.0.0"
 description = "hermes agent (https://github.com/NousResearch/hermes-agent) lab"
 license = { text = "MIT" }

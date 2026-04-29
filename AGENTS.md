@@ -71,7 +71,7 @@ Apply these cognitive gates to all reasoning processes. Use `[ModelName]` tags i
 
 ## Workspace Hygiene Rules
 
-Discord/Cron 経由のタスクで生成される成果物は、親リポジトリ（`/workspaces/hermes-agent-template/`）を汚染しないこと。
+Discord/Cron 経由のタスクで生成される成果物は、親リポジトリ（`/workspaces/hermes-agent-001/`）を汚染しないこと。
 
 - エージェントが生成する調査レポート → `~/workspace/reports/` に出力
 - エージェントが生成する監査レポート → `~/workspace/audits/` に出力

@@ -100,8 +100,8 @@ if [ ! -f "$HOME/.hermes/config.yaml" ]; then
             rm "$HOME/wiki"
         fi
 
-        if [ ! -e "$HOME/wiki" ] && [ ! -L "$HOME/wiki" ] && [ -d "/workspaces/hermes-agent-template/wiki" ]; then
-            ln -s /workspaces/hermes-agent-template/wiki "$HOME/wiki"
+        if [ ! -e "$HOME/wiki" ] && [ ! -L "$HOME/wiki" ] && [ -d "/workspaces/hermes-agent-001/wiki" ]; then
+            ln -s /workspaces/hermes-agent-001/wiki "$HOME/wiki"
             log_info "Wiki symlink created."
         fi
 

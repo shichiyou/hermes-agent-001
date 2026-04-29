@@ -98,7 +98,7 @@ EOF
 @test "removes legacy gateway auto-start from bashrc" {
     cat >"$HOME/.bashrc" <<'EOF'
 # Wiki path (LLM Wiki skill)
-export WIKI_PATH="/workspaces/hermes-agent-template/wiki"
+export WIKI_PATH="/workspaces/hermes-agent-001/wiki"
 
 # Start Hermes Gateway if not running to ensure cronjobs execute
 if ! pgrep -f "hermes gateway" > /dev/null; then

@@ -67,7 +67,7 @@
 
   ```text
   Hermes Agent v0.10.0 (2026.4.16)
-  Project: /workspaces/hermes-agent-template/external/hermes-agent
+  Project: /workspaces/hermes-agent-001/external/hermes-agent
   Python: 3.11.15
   OpenAI SDK: 2.32.0
   Up to date
@@ -84,8 +84,8 @@
   - `tinker-atropos not found` → RL extras は今回スコープ外、プラン通り
   - ツール可否: `moa`, `rl`, `messaging`, `vision`, `homeassistant`, `image_gen` が system dep or key 未整備。使用時に個別対応。
 - venv 隔離確認：
-  - ラボ本体 `/workspaces/hermes-agent-template/.venv/bin/python` → `Python 3.14.4`
-  - hermes 専用 `/workspaces/hermes-agent-template/external/hermes-agent/.venv/bin/python` → `Python 3.11.15`
+  - ラボ本体 `/workspaces/hermes-agent-001/.venv/bin/python` → `Python 3.14.4`
+  - hermes 専用 `/workspaces/hermes-agent-001/external/hermes-agent/.venv/bin/python` → `Python 3.11.15`
   - それぞれ独立した Python を参照している
 - `.gitignore` 効果確認: `git check-ignore -v external/hermes-agent/.venv` が `.gitignore:59:external/` にヒット。`git status` はラボ側 `.gitignore` と `docs/hermes-agent/` のみ差分。
 
@@ -102,7 +102,7 @@
 ### 実施（install.sh 分析）
 
 - `scripts/install.sh` を全読解（静的分析）
-- `ln -sf /workspaces/hermes-agent-template/external/hermes-agent/.venv/bin/hermes ~/.local/bin/hermes` を実行
+- `ln -sf /workspaces/hermes-agent-001/external/hermes-agent/.venv/bin/hermes ~/.local/bin/hermes` を実行
 - `which hermes` / `hermes --version` で動作確認
 - Windows ホスト側から `docker run --rm -it ubuntu:24.04 bash -c '...'` を試みた（install.sh の実行環境検証）
 

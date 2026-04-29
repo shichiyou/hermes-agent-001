@@ -285,8 +285,8 @@ unset _CHROME_BIN _candidate
 # Remove the marker after completing manual setup:
 #   rm ~/.hermes/.dr_recovery
 # ------------------------------------------------------------------
-_HERMES_BACKUP_SCRIPT="/workspaces/hermes-agent-template/.devcontainer/scripts/backup-hermes-config.sh"
-_HERMES_BACKUP_DIR="/workspaces/hermes-agent-template/.devcontainer/hermes-backup"
+_HERMES_BACKUP_SCRIPT="/workspaces/hermes-agent-001/.devcontainer/scripts/backup-hermes-config.sh"
+_HERMES_BACKUP_DIR="/workspaces/hermes-agent-001/.devcontainer/hermes-backup"
 
 if [ -f "$HOME/.hermes/.dr_recovery" ]; then
     log_warn "DR recovery mode — skipping Hermes config backup."
@@ -296,12 +296,12 @@ elif [ -f "$_HERMES_BACKUP_SCRIPT" ]; then
     log_info "Running Hermes config backup..."
     if bash "$_HERMES_BACKUP_SCRIPT" 2>&1; then
         # Check for changes and auto-commit if any
-        if git -C /workspaces/hermes-agent-template diff --quiet -- "$_HERMES_BACKUP_DIR" 2>/dev/null; then
+        if git -C /workspaces/hermes-agent-001 diff --quiet -- "$_HERMES_BACKUP_DIR" 2>/dev/null; then
             log_info "Hermes config backup: no changes detected."
         else
-            git -C /workspaces/hermes-agent-template add -- "$_HERMES_BACKUP_DIR"
-            git -C /workspaces/hermes-agent-template commit -m "chore: auto-backup hermes config on container start"
-            git -C /workspaces/hermes-agent-template push 2>/dev/null || log_warn "Hermes config backup: push failed (offline?)"
+            git -C /workspaces/hermes-agent-001 add -- "$_HERMES_BACKUP_DIR"
+            git -C /workspaces/hermes-agent-001 commit -m "chore: auto-backup hermes config on container start"
+            git -C /workspaces/hermes-agent-001 push 2>/dev/null || log_warn "Hermes config backup: push failed (offline?)"
             log_info "Hermes config backup: changes committed and pushed."
         fi
     else

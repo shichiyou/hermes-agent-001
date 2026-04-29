@@ -16,7 +16,7 @@ upstream を改造しない前提。
 ### 1. 作業ブランチ確認
 
 ```bash
-cd /workspaces/hermes-agent-template
+cd /workspaces/hermes-agent-001
 git branch --show-current   # 期待: feature/integrate-hermes-agent
 ```
 

@@ -1,5 +1,5 @@
 {
-  "name": "hermes-agent-template",
+  "name": "hermes-agent-001",
   "dockerComposeFile": "docker-compose.yml",
   "service": "devcontainer",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
