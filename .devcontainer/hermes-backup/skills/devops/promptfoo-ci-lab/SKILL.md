@@ -91,7 +91,9 @@ If your test defines `vars.task` but the prompt file lacks a `{{task}}` placehol
 
 A critical variant of the missing-placeholder pitfall: when a prompt is loaded via `file://../prompts/foo.txt`, promptfoo may **fail to substitute** `{{var}}` placeholders even if the file contains them correctly. The placeholder text reaches the model verbatim as `{{task}}`. Verified with promptfoo v0.121.9.
 
-**Workaround:** Inline the prompt directly inside the YAML config:
+**Root cause (source-verified):** `processFileReference` in promptfoo's bundled source reads the file with `fs.readFileSync(filePath, "utf8").trim()` and returns the raw string. It does **not** pass through the nunjucks template renderer that handles inline YAML prompts.
+
+**Workaround A — Inline the prompt directly inside the YAML config (most reliable):**
 ```yaml
 prompts:
   - |
@@ -101,7 +103,44 @@ prompts:
     ...
 ```
 
-Or pre-process the file into a temporary inline config before evaluation.
+**Workaround B — Pre-process with a custom script (keeps prompts in separate files):**
+
+Create `scripts/prepare-eval.js` that reads the YAML config, resolves `file://` references into inline strings, and writes a `-resolved.yaml`:
+
+```js
+// scripts/prepare-eval.js — resolve file:// prompts into inline text
+import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
+
+const configFile = process.argv[2];
+const configDir = path.dirname(path.resolve(configFile));
+const config = yaml.load(fs.readFileSync(configFile, 'utf8'));
+
+function resolvePrompt(p) {
+  if (typeof p !== 'string' || !p.startsWith('file://')) return p;
+  const filePath = path.resolve(configDir, p.slice(7));
+  const ext = path.extname(filePath);
+  if (ext === '.txt' || ext === '.md') return fs.readFileSync(filePath, 'utf8').trim();
+  if (ext === '.yaml' || ext === '.json' || ext === '.yml') return yaml.load(fs.readFileSync(filePath, 'utf8'));
+  throw new Error(`Unsupported file type: ${filePath}`);
+}
+
+function resolveAll(node) { /* ... recursive walk replacing prompts ... */ }
+const resolved = resolveAll(config);
+const outFile = configFile.replace(/\.ya?ml$/, '-resolved.yaml');
+fs.writeFileSync(outFile, yaml.dump(resolved, { lineWidth: -1 }));
+console.log(`Resolved: ${configFile} → ${outFile}`);
+```
+
+Register it in `package.json`:
+```json
+"scripts": {
+  "eval:phase1": "node scripts/prepare-eval.js tests/phase1.yaml && promptfoo eval -c tests/phase1-resolved.yaml --no-progress-bar"
+}
+```
+
+And add `*.resolved.yaml` to `.gitignore`.
 
 ### Multiple Variables
 
@@ -188,13 +227,34 @@ for r in data['results']['results']:
 
 **Critical rule:** Do not trust the terminal table summary alone. Always cross-check `output.json` to confirm which specific test+prompt combinations contributed to the pass/fail counts.
 
+## Multi-Phase Config Organization
+
+When evaluating prompts that serve different AI-DLC phases (requirements analysis, quality gate, implementation plan), **split them into separate config files** rather than combining all prompts in one file. This avoids the Cartesian product pitfall and keeps each phase's tests isolated.
+
+Example layout:
+```
+tests/
+  requirements-analysis.yaml   # {{task}} vars only
+  quality-gate.yaml            # {{code}} vars only
+  impl-plan.yaml               # {{task}} vars only
+```
+
+Run each independently:
+```bash
+npm run eval:phase1   # requirements-analysis.yaml via prepare-eval.js
+npm run eval:phase2   # quality-gate.yaml
+npm run eval:phase3   # impl-plan.yaml
+```
+
+With a `prepare-eval.js` script, each npm script resolves `file://` refs into `-resolved.yaml`, runs eval, and lets you inspect per-phase results cleanly.
+
 ## Common Pitfalls
 
 1. **Prompt file missing `{{var}}` placeholder** — vars are passed but never injected. The model outputs a generic template response, and assertions against expected content fail.
 
-2. **`file://` external prompt files not substituting `{{var}}`** — Even when the file contains `{{task}}`, promptfoo may pass the literal string to the model. Inline prompts in the YAML config are the reliable workaround.
+2. **`file://` external prompt files not substituting `{{var}}`** — Even when the file contains `{{task}}`, promptfoo may pass the literal string to the model. This is confirmed source-level behavior in `processFileReference`. Use either inline YAML prompts or a pre-processing script (`prepare-eval.js`) to resolve `file://` refs before evaluation.
 
-3. **`defaultTest.vars` overriding per-test vars** — If `defaultTest.vars.task: ""` is set, a test's `vars.task: "real value"` may be overwritten by the empty string. Remove `defaultTest.vars` entirely when tests define their own variables.
+3. **`defaultTest.vars` overriding per-test vars** — If `defaultTest.vars.task: ""` is set, a test's `vars.task: "real value"` may be overwritten by the empty string. **Remove `defaultTest.vars` entirely** when tests define their own variables.
 
 4. **Ollama local model timeout** — Large local models can exceed 300s. Use Cloud endpoints or increase `options.timeout`.
 
@@ -203,6 +263,10 @@ for r in data['results']['results']:
 6. **YAML triple-quote indentation crash** — `"""` inside nested YAML maps breaks js-yaml parsing. Always use `|` literal blocks for multi-line code strings.
 
 7. **Assuming `output.json` is old** — promptfoo caches and appends. Remove old `output.json` before a fresh run if you need clean physical evidence.
+
+8. **`javascript` assertion returning `{ pass: true }` throws `undefined` error** — In promptfoo v0.121.9, returning a GradingResult object (`{ pass: true }`) from a `javascript` assertion causes: `Custom function must return a boolean, number, or GradingResult object. Got type undefined: undefined`. This is a known library bug. **Workaround:** Use simple `contains` assertions instead, or return primitive `true`/`false` if using inline JavaScript assertions.
+
+9. **resolved.yaml cache causing stale test definitions** — If you forget to delete `*-resolved.yaml` after editing the source `.yaml`, `prepare-eval.js` may skip regeneration or promptfoo may load the stale resolved file. Always remove `*-resolved.yaml` and `output.json` before a fresh evaluation cycle.
 
 ## Verification Checklist
 
