@@ -683,6 +683,18 @@ curl -sL -o .aidlc-rule-details/inception/units-generation.md \
 
 ピットフォール再発検出: `grep -ic 'codd\|graphif\|pytest\|pre-commit\|drift.*control\|traceability.*check' AGENTS.md` の結果が「traceability」1語のみなら、CI/CoDD/Graphify と AI-DLCルールが再切断されている。
 
+## Assumption Surfacing の組み込み状態
+
+aidlc-codd-graphify-labでは、Assumption Surfacing（前提の顕在化）が以下に組み込まれている:
+
+| 組み込み先 | 形式 | 更新時の注意 |
+|---|---|---|
+| `AGENTS.md` / `CLAUDE.md` / `.github/copilot-instructions.md` | 末尾のLAB-SPECIFIC ADDITIONS境界より下 | AI-DLC更新時は境界より上のみ差し替え、下は維持 |
+| `docs/process/ai-agent-requirements-prompt-guide.md` | セクション3（開発案件分類ゲートの前） | AI-DLCは管理対象外なので通常の文書更新で対応 |
+| `docs/process/ai-agent-v-model-prompt-guide.md` | セクション3（最小開始プロンプトの前） | 同上 |
+
+**ピットフォール**: `.aidlc-rule-details/` 内にAssumption Surfacingを追記してはならない。AI-DLC配布物のバージョン更新で上書きされる。独自追記はAGENTS.md本体の境界セクション、または `docs/process/` に配置する。
+
 ## 典型的な次の一手
 
 現在のラボでよくある次の一手:

@@ -145,7 +145,39 @@ AIエージェントの失敗の大部分は、コードが壊れているから
 
 ## 実装パターン: エージェント指令ファイルへの組み込み
 
-この原則を**エージェントの行動として強制**するには、AGENTS.md / CLAUDE.md / .github/copilot-instructions.md の Requirements Analysis セクション直後に、上記「実行前セルフチェック」「曖昧さの3型」「行動パターン」を差分として挿入する。複数の指令ファイルが存在する場合は、すべてに同一内容を適用する（エージェント間で振る舞いの不整合を防ぐため）。
+### パターンA: 末尾追加 + 境界コメント（推奨 — AI-DLC等の配布物を含む場合）
+
+AGENTS.md / CLAUDE.md / .github/copilot-instructions.md の末尾に、境界コメントで区切って追記する。AI-DLC等の上流配布物が `.aidlc-rule-details/` 等を上書き更新しても、境界より下の独自追記は消失しない。
+
+```markdown
+（AI-DLC公式配布物の内容…）
+
+---
+
+<!-- ╔════════════════════════════════════════════════════════════════╗
+     ║  LAB-SPECIFIC ADDITIONS BELOW                                 ║
+     ║  AI-DLC公式配布物は上記まで。以下はラボ独自追記。              ║
+     ║  AI-DLC更新時は境界より上を差し替え、以下は維持すること。      ║
+     ╚════════════════════════════════════════════════════════════════╝ -->
+
+## Assumption Surfacing — 前提の顕在化
+
+（内容…）
+```
+
+**更新手順**: AI-DLC新版リリース時に、境界コメントより上を新配布物で差し替え、境界より下の独自追記はそのまま維持する。
+
+**ピットフォール**: `.aidlc-rule-details/` 内のルール詳細ファイルに Assumption Surfacing を追記してはならない。これらはAI-DLC配布物の一部であり、バージョン更新時に上書きで消失する。独自追記は境界コメントより下（AGENTS.md本体）か、ラボ独自の `docs/process/` 以下に配置する。
+
+### パターンB: Requirements Analysis セクション直後への挿入（配布物管理のない独自プロジェクト向け）
+
+AGENTS.md / CLAUDE.md / .github/copilot-instructions.md の Requirements Analysis セクション直後に、上記「実行前セルフチェック」「曖昧さの3型」「行動パターン」を差分として挿入する。複数の指令ファイルが存在する場合は、すべてに同一内容を適用する（エージェント間で振る舞いの不整合を防ぐため）。
+
+### プロンプトガイドへの組み込み
+
+`docs/process/ai-agent-requirements-prompt-guide.md` や `docs/process/ai-agent-v-model-prompt-guide.md` などのプロンプトガイドにも、Assumption Surfacingセクションを新設して組み込む。開発案件分類ゲートや最小開始プロンプトの**前**に配置する。既存セクション番号は+1シフトさせる。
+
+プロンプトガイド側には、行動原則に加えて「前提顕在化を促すプロンプト例」と「お任せ回答時のAIエージェント応答形式」を含めることで、人間側からの使い方も示す。
 
 組み込みの効果検証には、Git Worktree による Before/After 比較実験が有効。詳細は `references/lab-deployment-pattern.md` を参照。
 

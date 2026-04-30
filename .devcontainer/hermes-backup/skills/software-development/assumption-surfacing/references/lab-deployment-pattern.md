@@ -9,11 +9,45 @@ simply adding the rule to agent instruction files is insufficient — you need t
 ## Pattern: Embedding into Agent Instruction Files
 
 Agent instruction files (AGENTS.md, CLAUDE.md, .github/copilot-instructions.md)
-are the deployment surface. Insert the Assumption Surfacing section into the
-Requirements Analysis section of each file — this is where the self-check
-naturally triggers.
+are the deployment surface. There are two approaches depending on whether
+the upstream content is managed externally.
 
-### Insertion Point
+### Approach 1: Boundary Comment + Appended Section (RECOMMENDED for AI-DLC or other upstream-managed content)
+
+When agent instruction files contain upstream-managed content (e.g., AI-DLC v0.1.8
+distribution that may be updated), appending with a boundary comment prevents
+loss of custom additions during upstream updates.
+
+```
+（upstream AI-DLC content…）
+
+---
+
+<!-- ╔════════════════════════════════════════════════════════════════╗
+     ║  LAB-SPECIFIC ADDITIONS BELOW                                 ║
+     ║  AI-DLC公式配布物は上記まで。以下はラボ独自追記。              ║
+     ║  AI-DLC更新時は境界より上を差し替え、以下は維持すること。      ║
+     ╚════════════════════════════════════════════════════════════════╝ -->
+
+## Assumption Surfacing — 前提の顕在化
+
+（full section content…）
+```
+
+**Update procedure**: On AI-DLC version upgrade, replace content above the
+boundary comment with the new distribution, and keep everything below the
+boundary comment intact.
+
+**Critical pitfall**: NEVER modify `.aidlc-rule-details/` files to add
+Assumption Surfacing. Those are upstream-managed and will be overwritten
+on the next AI-DLC update. Custom additions go only in the boundary section
+of AGENTS.md/CLAUDE.md/copilot-instructions.md or in lab-specific documents
+under `docs/process/`.
+
+### Approach 2: Inline Insertion (for fully custom projects)
+
+For projects where the agent instruction files have no upstream dependency,
+insert the section directly after the Requirements Analysis section:
 
 ```
 Requirements Analysis
@@ -21,6 +55,20 @@ Requirements Analysis
       └─ ### Assumption Surfacing — 前提の顕在化（MANDATORY）  ← INSERT HERE
   └─ User Stories
 ```
+
+### Prompt Guide Additions
+
+For projects with prompt guides (`docs/process/ai-agent-requirements-prompt-guide.md`,
+`docs/process/ai-agent-v-model-prompt-guide.md`), add an Assumption Surfacing
+section as a new numbered section **before** the classification gate or
+minimal prompt sections. Shift existing section numbers by +1.
+
+Include in prompt guide additions:
+1. Self-check items
+2. 3 behavior patterns (propose interpretation, ask question, explicit acceptance)
+3. Ambiguity 3-type table
+4. Example prompt with explicit Assumption Surfacing instruction
+5. "I'll leave it to you" response format for explicit acceptance
 
 ### Content to Insert (Minimal Diff)
 
@@ -113,3 +161,13 @@ and an analysis template (did the agent question? what assumptions did it make?)
    AGENTS.md — verbose rules consume tokens and may be truncated by weaker models.
 5. **Worktree cleanup**: Always remove worktrees after each run to avoid
    accumulation and `git worktree` conflicts.
+6. **Upstream rule detail overwrite**: `.aidlc-rule-details/` files are overwritten
+   on AI-DLC version updates. Never put custom additions there — use boundary
+   comment pattern in AGENTS.md instead.
+7. **Section renumbering in prompt guides**: When inserting a new section into
+   `docs/process/` prompt guides, shift all subsequent section numbers by +1.
+   Apply changes with `patch` on each section header in reverse order (31→32,
+   30→31, ...) to avoid collision with the same string pattern.
+8. **Submodule pointer update**: After committing and pushing inside a submodule,
+   always update and push the parent repository's submodule pointer. Missing this
+   step means the parent still points to the old commit.
