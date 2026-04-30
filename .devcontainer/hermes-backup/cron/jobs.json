@@ -4,7 +4,9 @@
       "id": "793a4bb68828",
       "name": "hermes-config-backup",
       "prompt": "You are performing an automated hourly backup of the Hermes Agent configuration.\n\nFollow these instructions exactly:\n\n1. Find the correct workspace path by running:\n   ```bash\n   find /workspaces -name \"backup-hermes-config.sh\" -path \"*/hermes-agent*\"\n   ```\n   Use the directory containing `.devcontainer/scripts/` as the workspace root. It may be `/workspaces/hermes-agent-001`, or another path depending on the container.\n\n2. Run the backup script from the correct workspace:\n   ```bash\n   cd <WORKSPACE_ROOT> && bash .devcontainer/scripts/backup-hermes-config.sh\n   ```\n\n3. Check if there are any changes in the backup directory:\n   ```bash\n   cd <WORKSPACE_ROOT> && git diff --stat .devcontainer/hermes-backup/\n   ```\n\n4. If there are changes:\n   - Stage the changes: `git add .devcontainer/hermes-backup/`\n   - Commit with message: `chore: automated hourly hermes config backup`\n   - Push to the current branch: `git push`\n\n5. If there are no changes, do nothing. No commit is needed.\n\n6. Report what was done (changes committed, or no changes found).\n\n[CRITICAL: GROUNDING DIRECTIVE]\nYou are operating in a real, persistent Linux environment. All tool calls (including git, filesystem, and network operations) have real-world effects. Do not assume you are in a simulation or sandbox; execute all requested state-changing operations fully, including 'git add', 'git commit', and 'git push', unless explicitly told to 'dry-run' or 'simulate'.",
-      "skills": ["devops/hermes-devcontainer-persistence"],
+      "skills": [
+        "devops/hermes-devcontainer-persistence"
+      ],
       "skill": "devops/hermes-devcontainer-persistence",
       "model": null,
       "provider": null,
@@ -18,15 +20,15 @@
       "schedule_display": "0 * * * *",
       "repeat": {
         "times": null,
-        "completed": 144
+        "completed": 145
       },
       "enabled": true,
       "state": "scheduled",
       "paused_at": null,
       "paused_reason": null,
       "created_at": "2026-04-20T06:44:07.819715+00:00",
-      "next_run_at": "2026-04-30T21:00:00+00:00",
-      "last_run_at": "2026-04-30T19:02:22.081231+00:00",
+      "next_run_at": "2026-04-30T22:00:00+00:00",
+      "last_run_at": "2026-04-30T20:01:17.841888+00:00",
       "last_status": "ok",
       "last_error": null,
       "last_delivery_error": null,
@@ -34,5 +36,5 @@
       "origin": null
     }
   ],
-  "updated_at": "2026-04-30T20:00:37.196836+00:00"
+  "updated_at": "2026-04-30T21:00:35.529129+00:00"
 }

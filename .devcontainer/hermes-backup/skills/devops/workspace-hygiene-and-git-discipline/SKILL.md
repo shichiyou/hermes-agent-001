@@ -198,6 +198,28 @@ jobs:
         with: { name: <tool>-results, path: <tool>-output/ }
 ```
 
+### VS Code Multi-Root Workspace Pitfall — Overlapping Folders & Extension Breakage
+
+**Rule**: Do NOT register project-root subdirectories (submodules, `wiki/`, etc.) or unrelated paths (`/home/vscode`) as separate workspace folders in `.code-workspace`. Use the project root as the single folder.
+
+**Why**: VS Code extensions that spawn per-folder instances (Biome, ESLint, Pylance, etc.) create N independent LSP sessions for N workspace folders. When folders overlap (a subdirectory is also a separate folder), the extension:
+1. Starts duplicate sessions processing the same files — spams logs with "Overlapping workspace roots" warnings.
+2. Fails to resolve binaries for folders that lack their own `node_modules/` or config — the LSP `initializeResult` returns `undefined` for version, and the status bar shows e.g. `$(biome-logo) undefined`.
+3. Repeatedly logs "found configuration file outside of the current working directory" for every file event in the subdirectory.
+
+**Diagnostic path** (used to trace Biome "undefined" status bar):
+```
+# Extension logs reveal the problem
+~/.vscode-server/data/logs/<session>/exthost1/biomejs.biome/Biome.log
+# Key lines:
+#   "Running in multi-root workspace mode"
+#   "Found N workspace folder(s)"
+#   "Overlapping workspace roots: ..."
+#   In per-folder LSP logs: "configuration file found outside cwd"
+```
+
+**Fix**: Reduce `.code-workspace` to a single folder (the project root). Explorer's tree view naturally shows subdirectories; separate workspace folders are only needed when folders are truly separate filesystem roots.
+
 ### `.gitignore` Template (Tool Repos)
 ```
 node_modules/
@@ -239,6 +261,9 @@ git -C <submodule> ls-files | grep node_modules | wc -l   # must be 0
 ```
 
 ---
+
+## Reference Files
+- `references/biome-undefined-statusbar-debug.md` — Full root-cause analysis for Biome "undefined" status bar in multi-root workspaces (extension LSP version resolution, diagnostic commands, fix).
 
 ## Related Skills
 - `physical-evidence-and-verification` — truth-through-tools discipline.

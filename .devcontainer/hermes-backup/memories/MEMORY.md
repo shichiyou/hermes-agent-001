@@ -15,3 +15,5 @@ When working with Git submodules, user expects parent repository submodule point
 §
 ## Post-Submodule-Work Verification Protocol (Self-Correction)
 After reporting completion of work inside a Git submodule (e.g., `experiences/*`, `wiki`), the agent MUST perform `git status --short` in the parent repository (`/workspaces/hermes-agent-001/`) BEFORE declaring the task fully done. A submodule pointer update is an uncommitted change (`M <path>`) in the parent repo and must be staged, committed, and pushed separately. This check is non-negotiable; skipping it constitutes a "Ghost Completion".
+§
+Biome error fix pattern: auto-generated files (graphify-out/cache/, graph.html, graph.json) should be excluded via biome.json files.includes negation patterns rather than formatted. Schema version mismatch (2.4.12 vs 2.4.13) shows as info not error — patch $schema directly. root-owned files need sudo chmod for --write.
