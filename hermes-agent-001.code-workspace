@@ -25,6 +25,15 @@
     "[/home/vscode]": {
       "biome.enabled": false
     },
+    "[experiences/aidlc-codd-graphify-lab]": {
+      "biome.enabled": false
+    },
+    "[experiences/promptfoo-ci-lab]": {
+      "biome.enabled": false
+    },
+    "[wiki]": {
+      "biome.enabled": false
+    },
     "explorer.compactFolders": false,
     "files.exclude": {
       "**/.git": true,
