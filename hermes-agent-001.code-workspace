@@ -22,6 +22,9 @@
     }
   ],
   "settings": {
+    "[/home/vscode]": {
+      "biome.enabled": false
+    },
     "explorer.compactFolders": false,
     "files.exclude": {
       "**/.git": true,
