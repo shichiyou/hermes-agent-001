@@ -143,6 +143,12 @@ AIエージェントの失敗の大部分は、コードが壊れているから
    - 一致が確実なら → 即実行（ただし結果報告で補完内容を明示）
    - 不確かなら → パターン1 or 2で確認
 
+## 実装パターン: エージェント指令ファイルへの組み込み
+
+この原則を**エージェントの行動として強制**するには、AGENTS.md / CLAUDE.md / .github/copilot-instructions.md の Requirements Analysis セクション直後に、上記「実行前セルフチェック」「曖昧さの3型」「行動パターン」を差分として挿入する。複数の指令ファイルが存在する場合は、すべてに同一内容を適用する（エージェント間で振る舞いの不整合を防ぐため）。
+
+組み込みの効果検証には、Git Worktree による Before/After 比較実験が有効。詳細は `references/lab-deployment-pattern.md` を参照。
+
 ## DESCRIBE → CLARIFY（新規開発での拡張パターン）
 
 この基本原則を、新規開発・スプリント計画の文脈で体系的に適用する手順。
@@ -199,7 +205,8 @@ AIエージェントの失敗の大部分は、コードが壊れているから
 
 ## References
 
-- `references/evolution.md` — スキルの成り立ち（describe-clarifyからの改名経からの改名経緯、ユーザー指摘によるスコープ拡張、ai-agent-conduct統合の詳細）
+- `references/evolution.md` — スキルの成り立ち（describe-clarifyからの改名経緯、ユーザー指摘によるスコープ拡張、ai-agent-conduct統合の詳細） — 注: 旧版に「改名経からの改名経緯」という重複誤記があったが修正済み
+- `references/lab-deployment-pattern.md` — エージェント指令ファイルへの組み込みとBefore/After検証実験の構築パターン（Git Worktree分離、マルチモデル交差検証、Ollama→Codex回避策を含む）
 
 ## 検証
 
