@@ -33,19 +33,13 @@
     "vscode": {
       "settings": {
         "errorLens.enabled": true,
-        "errorLens.enabledDiagnosticLevels": [
-          "error",
-          "warning"
-        ],
+        "errorLens.enabledDiagnosticLevels": ["error", "warning"],
         "errorLens.messageTemplate": "$message",
         "errorLens.messageBackgroundMode": "message",
         "errorLens.fontSize": "90%",
         "errorLens.fontWeight": "normal",
         "errorLens.margin": "1.2ch",
-        "errorLens.excludeBySource": [
-          "cSpell",
-          "markdownlint"
-        ]
+        "errorLens.excludeBySource": ["cSpell", "markdownlint"]
       },
       "extensions": [
         "GitHub.copilot",

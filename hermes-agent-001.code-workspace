@@ -15,6 +15,10 @@
     {
       "name": "Wiki",
       "path": "wiki"
+    },
+    {
+      "path": "/home/vscode",
+      "name": "~ (Home)"
     }
   ],
   "settings": {
