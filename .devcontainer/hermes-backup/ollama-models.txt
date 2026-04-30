@@ -1,5 +1,6 @@
 # Ollama models required by Hermes Agent
 # Install with: ollama pull <model>
+glm-5.1:cloud
 gemma4:e2b
 gemma4:31b-cloud
 kimi-k2.6:cloud
