@@ -124,6 +124,10 @@ env OPENAI_API_KEY=ollama OPENAI_BASE_URL=http://localhost:11434/v1 \
 
 **No ACP support:** Codex CLI cannot be used via `delegate_task(acp_command=...)`. Always use `terminal` with `codex exec`.
 
+**OLLAMA_HOST env var:** Always use `$OLLAMA_HOST` (typically `127.0.0.1:11434`) instead of hardcoding `localhost:11434` or `127.0.0.1:11434` in Codex config `base_url`. The env var is set by Ollama and may differ across environments (containers, remote servers, custom ports). Hardcoding breaks portability. In `~/.codex/config.toml`, set `base_url = "http://127.0.0.1:11434/v1/"` (resolving OLLAMA_HOST at config-write time), or prefer the `env` approach: `OPENAI_BASE_URL=http://$OLLAMA_HOST/v1`.
+
+**Codex exec timeout with interactive workflows:** When an agent follows a workflow that creates question files and waits for user input (e.g., AI-DLC Requirements Analysis), `codex exec` will hang because it cannot provide interactive responses. The agent output up to the timeout point IS valid data — the question files it created are observable results. Increase timeout (e.g., 600s) and capture the output + created files before cleanup. Do NOT use `--full-auto` to bypass this; it inverts the purpose of observing whether the agent asks questions.
+
 ## Recommended Models
 
 From `cmd/launch/models.go`:
@@ -138,9 +142,11 @@ Cloud-tagged models (`-cloud`) offload to remote inference when local resources 
 
 ## Pitfalls
 
-1. **Codex CLI requires env var workaround** — `ollama launch codex` alone is insufficient; set OPENAI_API_KEY=ollama and OPENAI_BASE_URL=http://localhost:11434/v1 explicitly
+1. **Codex CLI requires env var workaround** — `ollama launch codex` alone is insufficient; set OPENAI_API_KEY=ollama and OPENAI_BASE_URL explicitly
 2. **Claude Code `--acp` removed** — v2.1.112+ no longer supports `--acp`. Use `delegate_task` for ACP, or `-p` for print mode
 3. **Hermes `-p` misparse** — After `--`, `-p` is interpreted as a Hermes profile name, not a prompt flag
 4. **WSL sandbox** — Codex CLI fails on WSL without `--dangerously-bypass-approvals-and-sandbox --skip-git-repo-check`
 5. **`--` separator required** — Agent-specific flags must come after `--` to avoid being parsed by `ollama launch`
 6. **Ollama must be running** — `ollama serve` or `ollama serve &` must be active before launching agents
+7. **Use `OLLAMA_HOST` env var, never hardcode `localhost`** — In devcontainers and WSL, `localhost` may not resolve correctly. Always read `$OLLAMA_HOST` (typically `127.0.0.1:11434`) and construct the base URL as `http://${OLLAMA_HOST}/v1/`. Hardcoding `http://localhost:11434/v1` in config files (e.g. `~/.codex/config.toml`) breaks when the Ollama server binds to a different interface inside a container.
+8. **Ollama cloud models have parallel request limits** — Cloud-tagged models (`-cloud`) typically allow 3 concurrent requests. When running multiple evaluations serially (e.g. Before/After comparison experiments), ensure sequential execution — do not parallelize calls to the same cloud model.

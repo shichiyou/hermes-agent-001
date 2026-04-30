@@ -1,12 +1,5 @@
 - Wiki: /workspaces/hermes-agent-001/wiki, ~/wikiはsymlink, GitHub shichiyou/wiki Private
 §
-## Discord Gateway 運用メモ（Private Bot）
-- Bot Permissions: View Channels, Send, Send in Threads, Embed, Attach, Read History, Add Reactions
-- Privileged Intents: Server Members ON, Message Content ON 必須
-- DISCORD_ALLOWED_USERS必須（未設定=全許可となる実装）
-- **ロールメンション（@役職）は反応しない** — `message.mentions`に含まれないため。ユーザーメンション（@Bot名）を使うこと
-- manage_threads権限なし。auto_thread有効だがスレッド作成不可でフォールバック動作
-§
 ## 課題解決プロセス
 障害→物理証拠→仮説→反証→戦術。日本語Markdown/audit追記はshell heredoc/printfを避け、write_file/read_file/patchで実施・検証する。
 §
