@@ -3,6 +3,22 @@
     {
       "name": "プロジェクトルート",
       "path": "."
+    },
+    {
+      "name": "実験: aidlc-codd-graphify-lab",
+      "path": "experiences/aidlc-codd-graphify-lab"
+    },
+    {
+      "name": "実験: promptfoo-ci-lab",
+      "path": "experiences/promptfoo-ci-lab"
+    },
+    {
+      "name": "Wiki",
+      "path": "wiki"
+    },
+    {
+      "path": "/home/vscode",
+      "name": "~ (Home)"
     }
   ],
   "settings": {
