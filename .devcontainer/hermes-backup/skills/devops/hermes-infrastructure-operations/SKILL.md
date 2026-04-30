@@ -245,3 +245,4 @@ Run this after each batch of wiki cron jobs, or schedule a follow-up cron job 30
 8. **WSL systemd failure** — `hermes gateway install` may fail on WSL. Use `nohup` or tmux instead.
 9. **Gateway must start before Dashboard** — Dashboard depends on Gateway API. Wait 10 seconds between starts.
 10. **Cron `jobs.json` is the source of truth** — Verify job config there after any `cronjob(action='update')`.
+11. **Runtime `apt install` is ephemeral in devcontainers** — Any package added via `sudo apt-get install` at runtime will be lost on container rebuild. Always add packages to the Dockerfile's `apt-get install` block instead. This applies to tool prerequisites (e.g., `bubblewrap` for Codex sandboxing) as well as system utilities.
