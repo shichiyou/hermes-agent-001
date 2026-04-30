@@ -162,6 +162,45 @@ browsers. Do **not** get stuck retrying the same search queries.
 | GitHub README | curl | Raw URL: `raw.githubusercontent.com` |
 | Twitter/X | browser | Navigate to user/status URL |
 
+## Redoc / OpenAPI-Style API Documentation Sites
+
+Many API documentation sites (e.g., jinjer, various SaaS platforms) use Redoc or
+similar SPA renderers. These present unique extraction challenges:
+
+1. **All sections render in a single DOM** — the left menu and right content
+   area are both in `document.body`. Left-menu items are `menuitem` elements.
+2. **Content is organized by `[data-section-id]` or class-based divs** —
+   collapsing/expanding sections changes visibility but not DOM presence.
+3. **Response schemas may be collapsed** — `{}` placeholders in list views
+   hide field details. Navigate to detail endpoints or use `browser_console`
+   to find the full response body text.
+4. **Click-then-extract pattern**: Click a left-menu item to navigate, then
+   use `browser_console` with a targeted JS expression to extract the visible
+   section content. Simple `document.body.innerText` dumps the entire page.
+
+**Targeted extraction from Redoc sites:**
+```javascript
+// Find all sections containing a specific keyword
+(() => {
+  const allDivs = document.querySelectorAll('div');
+  for (const d of allDivs) {
+    const t = d.innerText;
+    if (t.includes('target_keyword') && t.length < 8000 && t.length > 200) {
+      return t.substring(0, 5000);
+    }
+  }
+  return 'Not found';
+})()
+```
+
+**delegate_task for multi-section extraction:**
+Parallel subagents can each extract one section, but expect timeouts on large
+pages. Keep each subagent's scope narrow (1-2 sections max). If a subagent
+times out, extract that section directly in the parent session afterward.
+
+**See also:** `references/jinjer-api.md` — a real API reference extracted via
+these techniques from a Redoc SPA (jinjer HR platform API).
+
 ## Pitfalls
 
 - **Don't rely on curl for SPAs** — always try browser if curl returns <500 chars
@@ -172,3 +211,4 @@ browsers. Do **not** get stuck retrying the same search queries.
 - **Do deduplicate HN comments** — paginated extraction can produce duplicates
 - **Do capture official responses** — company rep replies in community threads are high-signal
 - **Do verify browser health with `ldd`** before trusting browser tools — missing .so files manifest as silent launch failures
+- **Do scope delegate_task subagents narrowly** — 1-2 Redoc sections each, or they timeout on large SPAs
