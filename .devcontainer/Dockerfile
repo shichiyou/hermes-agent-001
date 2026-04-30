@@ -57,6 +57,7 @@ RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
              libfontconfig1 \
              libfreetype6 \
              xfonts-cyrillic \
+             bubblewrap \
              xfonts-scalable \
              fonts-liberation \
              fonts-ipafont-gothic \
