@@ -194,6 +194,13 @@ auxiliary:
     api_key: ''
     timeout: 30
     extra_body: {}
+  curator:
+    provider: auto
+    model: ''
+    base_url: ''
+    api_key: ''
+    timeout: 600
+    extra_body: {}
   flush_memories:
     api_key: ''
     base_url: ''
@@ -258,6 +265,8 @@ tts:
     ref_text: ''
     model: neuphonic/neutts-air-q4-gguf
     device: cpu
+  piper:
+    voice: en_US-lessac-medium
   use_gateway: false
 stt:
   enabled: true
@@ -347,6 +356,7 @@ approvals:
   mode: manual
   timeout: 60
   cron_mode: deny
+  mcp_reload_confirm: true
 command_allowlist:
 - kill process via pgrep expansion (self-termination)
 - script execution via -e/-c flag
@@ -377,6 +387,9 @@ security:
 cron:
   wrap_response: true
   max_parallel_jobs: null
+kanban:
+  dispatch_in_gateway: true
+  dispatch_interval_seconds: 60
 code_execution:
   mode: project
   max_tool_calls: 25
@@ -404,7 +417,7 @@ onboarding:
 updates:
   pre_update_backup: false
   backup_keep: 5
-_config_version: 22
+_config_version: 23
 group_sessions_per_user: true
 platform_toolsets:
   cli:
