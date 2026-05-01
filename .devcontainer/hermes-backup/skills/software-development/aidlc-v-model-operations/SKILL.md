@@ -871,6 +871,46 @@ git status --ignored --short | sed -n '1,160p'
 - 検証後の `git status --short --branch` が clean。
 - `codd/scan/` と `sample-app/graphify-out/` は ignored 生成物として見える。
 
+### Template 品質改善フェーズ（root starter 化の次にやること）
+
+root starter 化が終わった直後でも、そのままでは「壊れていない」止まりで、再現性・導入容易性・検証容易性が不足しやすい。`aidlc-codd-graphify-template` で有効だった次段の改善順序は、**A案（検証系強化を先にやる）** である。
+
+優先順:
+
+1. `scripts/verify_template.py` のような**総合 verifier** を作る。
+2. `requirements-dev.txt` のような **pinned dependency file** を追加する。
+3. CI を floating install から pinned file install に切り替える。
+4. README / template-manifest / template-usage を verifier 導線へ寄せる。
+5. その後で sample app 教育強化や利用導線の詳細化に進む。
+
+総合 verifier の推奨責務:
+
+- 必須パス存在確認
+- `py_compile`
+- `pytest`
+- `codd validate`
+- `codd scan`
+- `codd measure`
+- `scripts/check_traceability_coverage.py`
+- `graphify update sample-app`
+- `scripts/check_graphify_coverage.py`
+- 生成物 / cache cleanup
+- `git status --short --branch` による clean check
+
+重要な運用判断:
+- **strict clean-git-status check は、source template を編集中の dirty state ではなく、commit 後の clean state で最終判定する。**
+- 理由: verifier に cleanup + clean check を入れると、開発中の template source repo では未コミット変更のため当然 FAIL する。これは verifier の欠陥ではなく、評価タイミングの問題である。
+- したがって、source repo では「実装中の局所確認」と「post-commit clean-state verification」を分ける。
+
+README の最小導線は、個別コマンドの長い列挙より次の 2 コマンドを正本に寄せる。
+
+```bash
+python -m pip install -r requirements-dev.txt
+python scripts/verify_template.py --check-repository
+```
+
+関連する具体ファイルとチェック項目は `references/template-quality-hardening-checklist.md` を参照。
+
 ### Graphify 生成物の扱い
 
 GitHub template に `sample-app/graphify-out/graph.json`, `graph.html`, `GRAPH_REPORT.md` を tracked file として含めると、生成先 repository で `graphify update sample-app` を実行しただけで tracked 差分が出る。これはテンプレート品質として不適切。
