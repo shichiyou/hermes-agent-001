@@ -198,11 +198,79 @@ jobs:
         with: { name: <tool>-results, path: <tool>-output/ }
 ```
 
+### Pattern C: Extracting a Clean Template Repo from an Experimental Lab
+
+Use this when an experimental submodule has matured into a reusable template.
+
+1. **Audit first**: confirm parent and source lab are clean and inspect current submodules/workspace.
+   ```bash
+   git -C /workspaces/hermes-agent-001 status --short --branch
+   git -C /workspaces/hermes-agent-001 config -f .gitmodules --get-regexp '^submodule\..*\.(path|url)$'
+   python -m json.tool /workspaces/hermes-agent-001/hermes-agent-001.code-workspace >/dev/null
+   gh auth status
+   ```
+2. **Create the template working tree outside the parent repo** (e.g. `/home/vscode/workspace/repos/<template-name>`). Avoid destructive setup commands such as `rm -rf`; if cleanup is required, inspect the path first and get confirmation for deletion.
+3. **Copy only reusable assets** from the lab:
+   - Include: agent instructions, `.aidlc-rule-details/`, process docs, CoDD config, CI/pre-commit gates, verification scripts, profile samples, manifest.
+   - Exclude: `logs/`, `aidlc-docs/evidence/*.log`, `experiments/`, `codd/scan/`, Graphify caches/output, `.venv/`, `__pycache__/`, `.pytest_cache/`.
+4. **Add template-specific controls**:
+   - `template-manifest.yaml` with upstream versions/hashes and profile list.
+   - `scripts/instantiate_template.py` that refuses to overwrite existing files.
+   - `scripts/verify_template.py` that checks required paths and runs a minimal sample test.
+   - A CI workflow for template integrity.
+5. **Smoke-test the template before publishing**:
+   ```bash
+   python scripts/verify_template.py --check-repository
+   TMP=/home/vscode/workspace/tmp/<template>-smoke-$(date +%Y%m%d%H%M%S)
+   mkdir -p "$TMP"
+   python scripts/instantiate_template.py --target "$TMP" --project-name smoke-project --profiles core,python
+   find "$TMP" \( -name __pycache__ -o -name .pytest_cache \) -type d
+   (cd "$TMP/sample-app" && python -m pytest -q)
+   ```
+   If smoke test finds generated caches copied into the target, patch the instantiator to exclude them before committing.
+6. **Initialize, commit, create GitHub repo, and verify remote sync**:
+   ```bash
+   git init --initial-branch=main
+   git add .
+   git commit -m "Initial template extraction from <lab>"
+   gh repo create <owner>/<template-name> --private --description "..." --source . --remote origin --push
+   git rev-parse HEAD
+   git rev-parse origin/main
+   ```
+7. **Add as parent submodule and update workspace if that is the project convention**:
+   ```bash
+   cd /workspaces/hermes-agent-001
+   git submodule add https://github.com/<owner>/<template-name>.git experiences/<template-name>
+   python -m json.tool hermes-agent-001.code-workspace >/dev/null
+   git add .gitmodules experiences/<template-name> hermes-agent-001.code-workspace
+   git commit -m "chore: add <template-name> repo"
+   git push origin main
+   git rev-parse HEAD
+   git rev-parse origin/main
+   git submodule status --recursive | grep <template-name>
+   ```
+
+**Pitfall**: Running `py_compile` or `pytest` inside the template repository creates `__pycache__` / `.pytest_cache`; delete them and ensure `.gitignore` plus the instantiator exclude generated directories before `git add`.
+
 ### VS Code Multi-Root Workspace Pitfall — Overlapping Folders & Extension Breakage
 
-**Rule**: Do NOT register project-root subdirectories (submodules, `wiki/`, etc.) or unrelated paths (`/home/vscode`) as separate workspace folders in `.code-workspace`. Use the project root as the single folder.
+**Default rule**: Avoid registering project-root subdirectories (submodules, `wiki/`, etc.) or unrelated paths (`/home/vscode`) as separate workspace folders in `.code-workspace`; a single project-root folder is usually safer.
 
-**Why**: VS Code extensions that spawn per-folder instances (Biome, ESLint, Pylance, etc.) create N independent LSP sessions for N workspace folders. When folders overlap (a subdirectory is also a separate folder), the extension:
+**Project-specific exception**: Some users intentionally maintain a multi-root workspace for submodules and expect new submodule repos to be added as separate folders. In that case, do not silently "simplify" the workspace. Match the existing workspace pattern and add per-folder extension disables for submodules that lack their own toolchain, e.g.:
+```json
+{
+  "name": "テンプレート: aidlc-codd-graphify-template",
+  "path": "experiences/aidlc-codd-graphify-template"
+}
+```
+```json
+"[experiences/aidlc-codd-graphify-template]": {
+  "biome.enabled": false
+}
+```
+Always validate with `python -m json.tool <workspace>.code-workspace` and read back the inserted folder/settings before claiming completion.
+
+**Why this matters**: VS Code extensions that spawn per-folder instances (Biome, ESLint, Pylance, etc.) create N independent LSP sessions for N workspace folders. When folders overlap (a subdirectory is also a separate folder), the extension:
 1. Starts duplicate sessions processing the same files — spams logs with "Overlapping workspace roots" warnings.
 2. Fails to resolve binaries for folders that lack their own `node_modules/` or config — the LSP `initializeResult` returns `undefined` for version, and the status bar shows e.g. `$(biome-logo) undefined`.
 3. Repeatedly logs "found configuration file outside of the current working directory" for every file event in the subdirectory.
@@ -218,7 +286,7 @@ jobs:
 #   In per-folder LSP logs: "configuration file found outside cwd"
 ```
 
-**Fix**: Reduce `.code-workspace` to a single folder (the project root). Explorer's tree view naturally shows subdirectories; separate workspace folders are only needed when folders are truly separate filesystem roots.
+**Fix when multi-root is not intentionally required**: Reduce `.code-workspace` to a single folder (the project root). Explorer's tree view naturally shows subdirectories; separate workspace folders are only needed when folders are truly separate filesystem roots.
 
 ### `.gitignore` Template (Tool Repos)
 ```
