@@ -9,6 +9,10 @@
       "path": "experiences/aidlc-codd-graphify-lab"
     },
     {
+      "name": "テンプレート: aidlc-codd-graphify-template",
+      "path": "experiences/aidlc-codd-graphify-template"
+    },
+    {
       "name": "実験: promptfoo-ci-lab",
       "path": "experiences/promptfoo-ci-lab"
     },
@@ -26,6 +30,9 @@
       "biome.enabled": false
     },
     "[experiences/aidlc-codd-graphify-lab]": {
+      "biome.enabled": false
+    },
+    "[experiences/aidlc-codd-graphify-template]": {
       "biome.enabled": false
     },
     "[experiences/promptfoo-ci-lab]": {
