@@ -214,20 +214,25 @@ Use this when an experimental submodule has matured into a reusable template.
    - Include: agent instructions, `.aidlc-rule-details/`, process docs, CoDD config, CI/pre-commit gates, verification scripts, profile samples, manifest.
    - Exclude: `logs/`, `aidlc-docs/evidence/*.log`, `experiments/`, `codd/scan/`, Graphify caches/output, `.venv/`, `__pycache__/`, `.pytest_cache/`.
 4. **Add template-specific controls**:
-   - `template-manifest.yaml` with upstream versions/hashes and profile list.
-   - `scripts/instantiate_template.py` that refuses to overwrite existing files.
-   - `scripts/verify_template.py` that checks required paths and runs a minimal sample test.
+   - `template-manifest.yaml` with upstream versions/hashes and verification policy.
+   - Prefer a single root-starter template over profile bundles or re-instantiation scripts when the template is meant to be the canonical repository root after `Use this template`.
+   - `scripts/verify_template.py` should verify the **source template repository skeleton** (required paths, document integrity, cleanup, clean git status) and should NOT depend on a bundled fixed sample application unless that sample is unquestionably part of the canonical product.
    - A CI workflow for template integrity.
+   - If hands-on evaluation is needed, add a dedicated guide under `docs/hands-on/` instead of embedding a misleading pseudo-app in the template root.
 5. **Smoke-test the template before publishing**:
    ```bash
    python scripts/verify_template.py --check-repository
    TMP=/home/vscode/workspace/tmp/<template>-smoke-$(date +%Y%m%d%H%M%S)
    mkdir -p "$TMP"
-   python scripts/instantiate_template.py --target "$TMP" --project-name smoke-project --profiles core,python
-   find "$TMP" \( -name __pycache__ -o -name .pytest_cache \) -type d
-   (cd "$TMP/sample-app" && python -m pytest -q)
+   gh repo create <owner>/<template>-smoke --private --template <owner>/<template> --confirm
+   git clone https://github.com/<owner>/<template>-smoke.git "$TMP/<template>-smoke"
+   find "$TMP/<template>-smoke" \( -name __pycache__ -o -name .pytest_cache \) -type d
    ```
-   If smoke test finds generated caches copied into the target, patch the instantiator to exclude them before committing.
+   Then verify the **generated smoke repository** separately from the source template repo:
+   - confirm root starter files exist (`AGENTS.md`, `.aidlc-rule-details/`, `codd/codd.yaml`, requirements/process docs, audit files)
+   - start the agent from the generated repo root
+   - define and run project-specific test / CoDD / Graphify gates there, not in the source template repo
+   If a bundled sample app would exist only to make the source template tests pass, remove it and move the validation to the generated smoke repo or a hands-on document instead.
 6. **Initialize, commit, create GitHub repo, and verify remote sync**:
    ```bash
    git init --initial-branch=main
@@ -332,6 +337,7 @@ git -C <submodule> ls-files | grep node_modules | wc -l   # must be 0
 
 ## Reference Files
 - `references/biome-undefined-statusbar-debug.md` — Full root-cause analysis for Biome "undefined" status bar in multi-root workspaces (extension LSP version resolution, diagnostic commands, fix).
+- `references/template-source-vs-smoke-repo-validation.md` — When extracting a reusable template, separate source-template integrity checks from generated smoke-repo validation; avoid bundling a misleading fixed sample app just to make the template verifier pass.
 
 ## Related Skills
 - `physical-evidence-and-verification` — truth-through-tools discipline.
