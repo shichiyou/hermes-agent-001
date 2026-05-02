@@ -20,21 +20,21 @@
       "schedule_display": "0 * * * *",
       "repeat": {
         "times": null,
-        "completed": 171
+        "completed": 179
       },
       "enabled": true,
       "state": "scheduled",
       "paused_at": null,
       "paused_reason": null,
       "created_at": "2026-04-20T06:44:07.819715+00:00",
-      "next_run_at": "2026-05-01T23:00:00+00:00",
-      "last_run_at": "2026-05-01T22:00:56.624470+00:00",
+      "next_run_at": "2026-05-02T07:00:00+00:00",
+      "last_run_at": "2026-05-02T06:00:34.542701+00:00",
       "last_status": "error",
-      "last_error": "RuntimeError: HTTP 429: Error code: 429 - {'error': 'you (shichiyou) have reached your weekly usage limit, upgrade for higher limits: https://ollama.com/upgrade (ref: 7b409ce7-0441-48ee-8194-7a5730a20efa)'}",
+      "last_error": "RuntimeError: HTTP 429: Error code: 429 - {'error': 'you (shichiyou) have reached your weekly usage limit, upgrade for higher limits: https://ollama.com/upgrade (ref: ddde3a31-9e00-4041-b9e4-18a247b57117)'}",
       "last_delivery_error": null,
       "deliver": "local",
       "origin": null
     }
   ],
-  "updated_at": "2026-05-01T22:00:56.625426+00:00"
+  "updated_at": "2026-05-02T06:00:34.542919+00:00"
 }
