@@ -189,6 +189,25 @@ Collect raw, objective data:
 
 ---
 
+## Editor / Extension Configuration Triage
+
+When a VS Code / editor / extension setting appears to be ignored, apply this sequence before attributing the problem to the extension:
+
+1. Physically confirm the local config file contains the setting (`read_file`).
+2. Check the editor's official documentation for the claimed syntax and scope.
+   - Important: undocumented JSON shapes are hypotheses, not supported features.
+3. Search editor issues for explicit support gaps or feature requests.
+   - An open feature request is strong evidence the configuration form is unsupported.
+4. Inspect the extension manifest (`package.json`) for the setting declaration and its `scope`.
+5. Inspect extension runtime code to see how the setting is read (global/workspace/workspace-folder/resource).
+6. Search extension issues/comments for maintainer-confirmed workarounds.
+
+Key diagnostic rule:
+- Separate `the setting key exists` from `the host editor supports that scoping syntax`.
+- If the editor never maps the configuration into a valid scope, the extension cannot honor it.
+
+See also: `references/editor-extension-config-triangulation.md` for a VS Code × Biome multi-root example.
+
 ## Quick-Reference Checklist
 Before claiming completion:
 - [ ] Absolute paths used for all operations?
