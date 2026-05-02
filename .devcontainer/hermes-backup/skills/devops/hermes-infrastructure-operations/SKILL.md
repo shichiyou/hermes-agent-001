@@ -163,6 +163,51 @@ Three sources of truth:
    - `.env` template with secrets **commented out** (not placeholders)
    - `bashrc-additions.sh`, `gitconfig-template`, `ollama-models.txt`
 
+### Automated Repo-Backed Backup Runbook
+When an hourly or scheduled job is supposed to back up Hermes config into the repository, use this exact sequence instead of assuming the workspace path:
+
+1. **Discover the real workspace root first**:
+   ```bash
+   find /workspaces -name "backup-hermes-config.sh" -path "*/hermes-agent*"
+   ```
+   Use the directory containing `.devcontainer/scripts/` as the workspace root. Do not hardcode `/workspaces/hermes-agent-001` unless the search confirms it.
+
+2. **Run the backup from that root**:
+   ```bash
+   cd <WORKSPACE_ROOT> && bash .devcontainer/scripts/backup-hermes-config.sh
+   ```
+
+3. **Check only the backup directory for repo changes**:
+   ```bash
+   cd <WORKSPACE_ROOT> && git diff --stat .devcontainer/hermes-backup/
+   ```
+
+4. **If diff is non-empty, commit and push the backup**:
+   ```bash
+   git add .devcontainer/hermes-backup/
+   git commit -m "chore: automated hourly hermes config backup"
+   git push
+   ```
+
+5. **Verify the commit physically**:
+   ```bash
+   git log --oneline -1
+   git status --short --branch
+   git rev-parse HEAD && git rev-parse origin/main
+   ```
+   Completion requires the new commit to exist, the branch to be clean, and `HEAD == origin/main` after push.
+
+6. **If diff is empty, do not commit**.
+
+### Expected Hourly Delta: `cron/jobs.json`
+A scheduled backup run may produce a diff only in `.devcontainer/hermes-backup/cron/jobs.json`. This is still a real backup change when the repository policy is “commit any backup-dir delta.” Typical fields that advance on each run:
+- `repeat.completed`
+- `next_run_at`
+- `last_run_at`
+- top-level `updated_at`
+
+Do not dismiss this as fake noise without checking the actual diff first. See `references/hourly-backup-protocol.md` for an example and the verification pattern.
+
 ### DR Recovery Guard
 `~/.hermes/.dr_recovery` is a marker file created by `on-create.sh` when restoring on a fresh host.
 - **Blocks** all automated backup until manually removed.
@@ -246,3 +291,8 @@ Run this after each batch of wiki cron jobs, or schedule a follow-up cron job 30
 9. **Gateway must start before Dashboard** — Dashboard depends on Gateway API. Wait 10 seconds between starts.
 10. **Cron `jobs.json` is the source of truth** — Verify job config there after any `cronjob(action='update')`.
 11. **Runtime `apt install` is ephemeral in devcontainers** — Any package added via `sudo apt-get install` at runtime will be lost on container rebuild. Always add packages to the Dockerfile's `apt-get install` block instead. This applies to tool prerequisites (e.g., `bubblewrap` for Codex sandboxing) as well as system utilities.
+12. **Do not assume backup-path stability across containers** — Scheduled backup jobs must discover the workspace root dynamically with `find /workspaces -name "backup-hermes-config.sh" -path "*/hermes-agent*"` before running the script.
+13. **Hourly backup diffs may be metadata-only but still intentional** — If repository policy says to commit any change under `.devcontainer/hermes-backup/`, a `cron/jobs.json` delta alone still requires the normal add/commit/push flow.
+
+## Reference Files
+- `references/hourly-backup-protocol.md` — dynamic workspace discovery, backup execution, commit/push sequence, and an example where only `cron/jobs.json` changed.
