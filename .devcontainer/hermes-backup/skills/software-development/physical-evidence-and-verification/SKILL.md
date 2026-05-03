@@ -43,6 +43,13 @@ This skill is a **class-level umbrella** for trustworthy execution. It replaces 
 
 ## Part I — Core Culture: Anti-Hallucination & Anti-Storytelling
 
+### Planning-vs-Execution Boundary
+- Do not blur planning, recommendation, and execution in prose.
+- If you are only researching or planning, say so explicitly and avoid language that implies the change has already been made.
+- If you say a concrete action will be performed (for example, "I will edit X" or "next I will change Y"), perform that action in the same turn or restate clearly that it is only a proposed next step.
+- When the user asks for a plan first, treat any state-changing action beyond saving the plan file as out of scope.
+- Recovery rule: if the user questions whether anything was actually done, immediately verify the filesystem / Git state and distinguish: researched, planned, changed, verified.
+
 ### 1. Language Rules
 - Replace adjectives of success with objective statements.
   - ❌ "Successfully deleted the file."

@@ -89,8 +89,43 @@ Maintainer/user guidance in `biomejs/biome-vscode` issues indicates practical wo
 
 3. In nested-workspace scenarios, disable Biome in the root folder's `.vscode/settings.json` to prevent overlapping LSP instances.
 
+```json
+{
+  "biome.enabled": false
+}
+```
+
+### Important caveat from issue threads
+The workspace-level-disable → folder-level-enable pattern is maintainer-endorsed, but at least one issue comment reported that the extension remained disabled even inside the re-enabled folder for that user's setup/version.
+
+Practical implication:
+- treat this pattern as a strong workaround, not an absolute guarantee
+- if the goal is specifically to stop the root workspace from interfering in a nested multi-root workspace, disabling Biome in the root folder's `.vscode/settings.json` is often the more directly confirmed workaround
+
+### Nested multi-root diagnosis pattern
+When a workspace contains both:
+- a root folder such as `.`
+- one or more child folders under that root
+
+Biome may spawn one LSP per workspace folder, and the root folder's selector can still match files inside child folders. This can cause:
+- duplicate formatter entries
+- duplicate diagnostics
+- double-formatting / mangled imports
+- logs or warnings about overlapping workspace roots
+
+When this appears, verify the overlap first; do not assume `biome.json` includes/excludes alone will suppress the root LSP.
+
+### Global / single-file behavior is a separate axis
+Biome also has global / single-file behavior for untitled files and files outside any workspace folder. Keep this separate from nested multi-root diagnosis.
+
+Observed runtime behavior in current extension code:
+- untitled files can map to a global Biome instance
+- files outside any workspace folder can trigger global-install / global-session logic
+- multi-root overlap problems are about competing workspace-folder sessions, not global session behavior
+
 ## Pitfalls
 - Do not treat “JSON key exists” as proof the editor supports that syntax.
 - Do not stop at docs alone when extension runtime behavior matters.
 - Do not blame the extension before checking whether the host editor ever delivers the intended scope.
+- Do not assume `biome.json` includes/excludes automatically prevent root workspace LSP overlap in the editor.
 - For editor integrations, maintainer comments in issues often contain the only documented workaround.
