@@ -207,7 +207,10 @@ A scheduled backup run may produce a diff only in `.devcontainer/hermes-backup/c
 - `last_run_at`
 - top-level `updated_at`
 
-Do not dismiss this as fake noise without checking the actual diff first. See `references/hourly-backup-protocol.md` for an example and the verification pattern.
+### Other Legitimate Backup Deltas
+Do not assume an hourly run is limited to `cron/jobs.json`. The backup may also capture newly changed local Hermes assets such as mirrored custom skill files under `.devcontainer/hermes-backup/skills/`. If `git diff --stat .devcontainer/hermes-backup/` shows multiple files, inspect the concrete diff and then apply the same add/commit/push flow to the whole backup directory.
+
+Do not dismiss this as fake noise without checking the actual diff first. See `references/hourly-backup-protocol.md` for both single-file and multi-file examples plus the verification pattern.
 
 ### DR Recovery Guard
 `~/.hermes/.dr_recovery` is a marker file created by `on-create.sh` when restoring on a fresh host.
