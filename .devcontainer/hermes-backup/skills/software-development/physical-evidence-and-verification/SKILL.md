@@ -103,7 +103,22 @@ Every state-changing action must be followed by verification:
 | `git add` | `git diff --cached --name-status` |
 | `git commit` | `git log --oneline -1` + `git status` clean |
 
-### 4. Cognitive Bias Shielding
+### 4. Compound Shell Chain Hazard (Partial Success Before Failure)
+When multiple shell actions are chained in one command (`A && B && C`), a later failure does **not** undo an earlier state change.
+
+Example class:
+- `git add ... && printf ... && git commit ...`
+- if `printf` or another "harmless" helper fails, `git add` may already have succeeded while `git commit` never ran.
+
+Protocol:
+1. After any chained-command failure, assume **partial execution is possible**.
+2. Re-check physical state immediately (`git status --short --branch`, `git diff --cached --name-status`, `git log --oneline -1`, `ls`, etc.).
+3. Resume from the verified state; do **not** blindly rerun the whole chain if that could duplicate or mis-sequence actions.
+4. Prefer separating state-changing actions from decorative separators/logging helpers, or use safe forms like `printf '%s\n' '---LABEL---'` / `printf -- '---LABEL---\n'`.
+
+Why this matters: shell helper failures can create the illusion that "nothing happened" when the index, filesystem, or process state has already changed.
+
+### 5. Cognitive Bias Shielding
 - If the user says "It's still there," assume your memory is wrong and their observation is correct.
 - When verifying absence, search globally (`search_files`) — not just the suspected directory.
 - Do not rely on an earlier `git status` snapshot as still true; re-run if questioned.
